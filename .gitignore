@@ -1,0 +1,17 @@
+# Ignorar arquivos Sensíveis / Engenharia Social / Recrutamento
+*/CIMATEC_Intel_Report.md
+*/CIMATEC_Campus_Access_Social_Engineering_Guide.md
+*/Scripts_Abordagem_Ultimo_Dia.md
+*/Scripts_Recrutamento_Mensagens_GP2026.md
+*/OSINT_Recruitment_Playbook.md
+*/Advanced_Hacker_OSINT_Encyclopedia.md
+
+# Ignorar o diretório intel caso precise isolar a pasta totalmente
+# /01_Intel_OSINT/
+
+# Ignorar arquivos de sistema e temporários
+.DS_Store
+Thumbs.db
+node_modules/
+*.log
+.env
