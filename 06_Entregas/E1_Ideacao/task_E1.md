@@ -1,0 +1,5 @@
+- [x] Analisar edital e requisitos de entrega [E1]
+- [x] Desenvolver nome do produto (Camaçari Shield)
+- [x] Redigir o Lean Canvas com métricas do usuário (R$ 80k/dia)
+- [x] Salvar arquivos na memória local (`06_Entregas/`)
+- [ ] Submeter na plataforma GP (Ação do Usuário)

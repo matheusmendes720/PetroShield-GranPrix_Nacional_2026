@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lean Canvas — AxeGuard | PetroShield</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  .canvas-wrapper {
+    width: 1200px;
+    background: #fff;
+    border: 2px solid #3b5998;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  }
+
+  /* ── HEADER ── */
+  .canvas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 20px 28px 14px;
+    border-bottom: 3px solid #3b5998;
+    background: #fafbfc;
+  }
+  .canvas-header h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: #3b5998;
+    letter-spacing: -0.5px;
+  }
+  .canvas-header .brand {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1d2939;
+  }
+
+  /* ── GRID ── */
+  .canvas-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    border-bottom: 2px solid #3b5998;
+  }
+
+  .block {
+    border-right: 1px solid #d0d5dd;
+    border-bottom: 1px solid #d0d5dd;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .block:last-child { border-right: none; }
+
+  .block-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #3b5998;
+    padding: 10px 12px 6px;
+  }
+
+  .block-content {
+    padding: 4px 12px 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .card {
+    background: #8b9dc3;
+    color: #fff;
+    font-size: 10.5px;
+    line-height: 1.4;
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .sub-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #d4740a;
+    padding: 8px 0 2px;
+    border-top: 1px solid #e4e7ec;
+    margin-top: auto;
+  }
+
+  /* ── COLUMN SPANS ── */
+  .col-problema  { grid-column: 1; grid-row: 1 / 3; }
+  .col-solucao   { grid-column: 2; grid-row: 1; }
+  .col-metricas  { grid-column: 2; grid-row: 2; }
+  .col-uvp       { grid-column: 3; grid-row: 1 / 3; }
+  .col-vantagem  { grid-column: 4; grid-row: 1; }
+  .col-canais    { grid-column: 4; grid-row: 2; }
+  .col-clientes  { grid-column: 5; grid-row: 1 / 3; }
+
+  /* ── BOTTOM ROW ── */
+  .canvas-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .canvas-bottom .block {
+    border-bottom: none;
+  }
+  .canvas-bottom .block:first-child {
+    border-right: 1px solid #d0d5dd;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .canvas-wrapper { box-shadow: none; border-radius: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="canvas-wrapper">
+
+  <!-- HEADER -->
+  <div class="canvas-header">
+    <h1>Lean Canvas</h1>
+    <span class="brand">AxeGuard — PetroShield</span>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="canvas-grid">
+
+    <!-- 01 PROBLEMA -->
+    <div class="block col-problema">
+      <div class="block-title">01 Problema</div>
+      <div class="block-content">
+        <div class="card">90% das PMEs industriais baianas operam sem rotinas de backup offline e carecem de um SOC estruturado.</div>
+        <div class="card">Um ataque de Ransomware custa em média R$ 80.000 por cada dia de paralisação forçada para uma PME com faturamento de R$ 20M/ano.</div>
+        <div class="sub-title">Alternativas Existentes</div>
+        <div class="card">Mitigação reativa: resolver a crise custa ~R$ 500.000</div>
+        <div class="card">SOC tradicional: R$ 50k/mês — proibitivo para a margem da PME</div>
+      </div>
+    </div>
+
+    <!-- 02 SOLUÇÃO -->
+    <div class="block col-solucao">
+      <div class="block-title">02 Solução</div>
+      <div class="block-content">
+        <div class="card">Middleware de cibersegurança integrado diretamente nos roteadores e gateways industriais.</div>
+        <div class="card">Protocolo autônomo de isolamento de rede: bloqueia movimento lateral de malware entre o administrativo e a planta industrial imediatamente.</div>
+      </div>
+    </div>
+
+    <!-- 03 MÉTRICAS-CHAVE -->
+    <div class="block col-metricas">
+      <div class="block-title">03 Métricas-Chave</div>
+      <div class="block-content">
+        <div class="card">MTTR: Redução do ciclo da ameaça de dias para tempo sub-minuto.</div>
+        <div class="card">Faturamento protegido: R$ 80.000/dia assegurados por ação preventiva.</div>
+        <div class="card">CAC e Retenção: monitoramento da permanência do cliente.</div>
+      </div>
+    </div>
+
+    <!-- 04 PROPOSTA DE VALOR ÚNICA -->
+    <div class="block col-uvp">
+      <div class="block-title">04 Proposta de Valor Única</div>
+      <div class="block-content">
+        <div class="card" style="font-size: 12px; font-weight: 600;">Transformar o risco de um prejuízo de R$ 500.000 em uma garantia de proteção contínua por apenas R$ 1.000/mês — blindando diretamente a capacidade de faturamento da empresa.</div>
+        <div class="sub-title">Conceito de Alto Nível</div>
+        <div class="card">Uma malha defensiva invisível e "plug-and-play": a vacina contra a principal causa de paralisação industrial cibernética da década.</div>
+      </div>
+    </div>
+
+    <!-- 05 VANTAGEM INJUSTA -->
+    <div class="block col-vantagem">
+      <div class="block-title">05 Vantagem Injusta</div>
+      <div class="block-content">
+        <div class="card">Backend multi-tenant centralizado na nuvem com inteligência cooperativa: um ataque em uma empresa parceira atualiza a defesa de toda a base industrial em segundos.</div>
+        <div class="card">Custo operacional pulverizado entre toda a base de clientes do polo.</div>
+      </div>
+    </div>
+
+    <!-- 06 CANAIS -->
+    <div class="block col-canais">
+      <div class="block-title">06 Canais</div>
+      <div class="block-content">
+        <div class="card">Canal institucional B2B: parceria estratégica via FIEB/SENAI para selo de conformidade.</div>
+        <div class="card">Venda consultiva: auditorias gratuitas de exposição dos dados fabris como geração de leads.</div>
+      </div>
+    </div>
+
+    <!-- 07 SEGMENTOS DE CLIENTES -->
+    <div class="block col-clientes">
+      <div class="block-title">07 Segmentos de Clientes</div>
+      <div class="block-content">
+        <div class="card">PMEs industriais da Bahia: setores têxtil, alimentício, siderúrgico e químico. Faturamento R$ 20M ~ R$ 150M.</div>
+        <div class="sub-title">Primeiros Adotantes</div>
+        <div class="card">Indústrias do Polo de Camaçari e nós logísticos de Feira de Santana com dependência de IoT e sensores interconectados.</div>
+      </div>
+    </div>
+
+  </div><!-- /canvas-grid -->
+
+  <!-- BOTTOM ROW -->
+  <div class="canvas-bottom">
+    <!-- 08 ESTRUTURA DE CUSTOS -->
+    <div class="block">
+      <div class="block-title">08 Estrutura de Custos</div>
+      <div class="block-content" style="flex-direction: row; gap: 8px; flex-wrap: wrap;">
+        <div class="card" style="flex: 1; min-width: 200px;">OPEX em nuvem: processamento de alertas com baixa dependência de fator humano/analista.</div>
+        <div class="card" style="flex: 1; min-width: 200px;">Provisionamento e certificação dos hardwares-proxy instalados sob demanda na ponta do cliente.</div>
+      </div>
+    </div>
+    <!-- 09 FLUXOS DE RECEITA -->
+    <div class="block">
+      <div class="block-title">09 Fluxos de Receita</div>
+      <div class="block-content" style="flex-direction: row; gap: 8px; flex-wrap: wrap;">
+        <div class="card" style="flex: 1; min-width: 200px;">Security as a Service (SaaS): planos recorrentes de R$ 1.000/mês por unidade industrial.</div>
+        <div class="card" style="flex: 1; min-width: 200px;">Taxa de Setup inicial: mapeamento lógico completo da rede industrial (one-time fee).</div>
+      </div>
+    </div>
+  </div><!-- /canvas-bottom -->
+
+</div><!-- /canvas-wrapper -->
+
+</body>
+</html>
