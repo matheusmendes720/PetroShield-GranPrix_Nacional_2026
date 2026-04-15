@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AxeGuard Agentic SOC | Live Demo</title>
+    <style>
+        :root {
+            --term-bg: #050505;
+            --term-green: #00FF41;
+            --term-red: #ff3333;
+            --term-cyan: #00f3ff;
+            --term-yellow: #f59e0b;
+            --term-purple: #c084fc;
+            
+            --dash-bg: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            background-color: #000;
+            color: var(--text-main);
+        }
+
+        /* LEFT PANEL: TUI (Terminal User Interface) */
+        .tui-container {
+            width: 50%;
+            height: 100%;
+            background-color: var(--term-bg);
+            border-right: 2px solid var(--term-cyan);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .tui-header {
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--term-cyan);
+            padding: 10px 15px;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .terminal-window {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.5;
+            box-shadow: inset 0 0 50px rgba(0, 255, 65, 0.05);
+        }
+
+        .log-line { margin-bottom: 4px; opacity: 0.9; }
+        .log-sys { color: var(--term-cyan); }
+        .log-rag { color: var(--term-purple); }
+        .log-agent { color: var(--term-green); }
+        .log-alert { color: var(--term-red); font-weight: bold; text-shadow: 0 0 5px red;}
+        .log-tool { color: var(--term-yellow); }
+
+        .terminal-input-bar {
+            padding: 15px;
+            border-top: 1px solid rgba(0, 255, 65, 0.2);
+            color: var(--term-green);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .blinking-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background-color: var(--term-green);
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* RIGHT PANEL: Executive Dashboard */
+        .dash-container {
+            width: 50%;
+            height: 100%;
+            background-color: var(--dash-bg);
+            background-image: radial-gradient(circle at center, rgba(0, 243, 255, 0.05) 0%, transparent 70%);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        .dash-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+        }
+
+        .dash-header h1 {
+            font-size: 20px;
+            font-weight: 300;
+            color: var(--term-cyan);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-card::before {
+            content: ''; position: absolute; top:0; left:0; width: 3px; height: 100%; background: var(--term-cyan);
+        }
+
+        .metric-title { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;}
+        .metric-value { font-size: 28px; font-weight: bold; margin-top: 10px; color: var(--text-main); }
+        .metric-value.money { color: var(--term-green); text-shadow: 0 0 10px rgba(0,255,65,0.4); }
+        .metric-value.threat { color: var(--term-red); text-shadow: 0 0 10px rgba(255,51,51,0.4); }
+
+        .compliance-banner {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid var(--term-green);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .compliance-banner i { font-size: 24px; color: var(--term-green); }
+
+        /* Actions */
+        .action-overlay {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        button.hack-btn {
+            background: transparent;
+            color: var(--term-red);
+            border: 1px solid var(--term-red);
+            padding: 8px 16px;
+            font-size: 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255,51,51,0.2);
+            transition: 0.3s;
+        }
+        button.hack-btn:hover {
+            background: rgba(255,51,51,0.2);
+            box-shadow: 0 0 20px rgba(255,51,51,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- OVERLAY TRIGGER -->
+    <div class="action-overlay">
+        <button class="hack-btn" id="run-demo-btn" onclick="runSim()">[ ROOT ] Execute Live Orchestration Demo</button>
+    </div>
+
+    <!-- LEFT: TUI -->
+    <div class="tui-container">
+        <div class="tui-header">
+            <span>[TUI] LANGGRAPH_ORCHESTRATOR_V2</span>
+            <span>NODE: AXEGUARD_CORE</span>
+        </div>
+        <div class="terminal-window" id="term-output">
+            <div class="log-line log-sys">> Initializing AxeGuard Multi-Agent Framework...</div>
+            <div class="log-line log-sys">> Loading Subgraphs: [Supervisor, Edge_DLP, RAG_Intel, CLevel_Reporter]</div>
+            <div class="log-line log-sys">> Listening to SCADA Telemetry (Camaçari Node) on port 443...</div>
+            <div class="log-line"><br></div>
+        </div>
+        <div class="terminal-input-bar">
+            <span>axeguard@soc:~$</span>
+            <span id="typing-cmd"></span>
+            <span class="blinking-cursor"></span>
+        </div>
+    </div>
+
+    <!-- RIGHT: DASHBOARD -->
+    <div class="dash-container">
+        <div class="dash-header">
+            <h1>C-Level Executive Dashboard</h1>
+            <span style="color:#94a3b8; font-size: 12px;">Live Telemetry via Agent_Reporter</span>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card" style="--term-cyan: var(--term-red)">
+                <div class="metric-title">Ameaças Físicas/Lógicas (24H)</div>
+                <div class="metric-value threat" id="threat-counter">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Downtime Evitado (Horas)</div>
+                <div class="metric-value" id="uptime-counter">0 h</div>
+            </div>
+            <div class="metric-card" style="grid-column: span 2; background: rgba(0,255,65,0.05); --term-cyan: var(--term-green);">
+                <div class="metric-title">Faturamento Salvaguardado (ROI Imediato)</div>
+                <div class="metric-value money" id="money-counter">R$ 0,00</div>
+                <div style="font-size:11px; margin-top:5px; color:#94a3b8">Base de Risco: R$ 80.000 / dia operado. R$ 500k recup.</div>
+            </div>
+        </div>
+
+        <div class="compliance-banner" id="compliance-banner" style="border-color: rgba(255,255,255,0.2); background: transparent">
+            <svg id="comp-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>
+            <div>
+                <strong style="color:var(--text-main)" id="comp-title">LGPD & Compliance Status</strong><br>
+                <span style="font-size:12px; color:#94a3b8" id="comp-desc">Aguardando auditoria em tempo real...</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const terminal = document.getElementById('term-output');
+        const typingArea = document.getElementById('typing-cmd');
+        const btn = document.getElementById('run-demo-btn');
+        
+        // Dash Elements
+        const threatCounter = document.getElementById('threat-counter');
+        const uptimeCounter = document.getElementById('uptime-counter');
+        const moneyCounter = document.getElementById('money-counter');
+        const compBanner = document.getElementById('compliance-banner');
+        const compIcon = document.getElementById('comp-icon');
+        const compTitle = document.getElementById('comp-title');
+        const compDesc = document.getElementById('comp-desc');
+
+        // Typing Effect Helper
+        function typeText(text, container, speed = 50) {
+            return new Promise(resolve => {
+                container.innerHTML = '';
+                let i = 0;
+                let int = setInterval(() => {
+                    container.innerHTML += text.charAt(i);
+                    i++;
+                    if(i >= text.length) {
+                        clearInterval(int);
+                        resolve();
+                    }
+                }, speed);
+            });
+        }
+
+        // Add Log Helper
+        function logLine(text, cssClass = '') {
+            const div = document.createElement('div');
+            div.className = `log-line ${cssClass}`;
+            div.innerHTML = text;
+            terminal.appendChild(div);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Theatre Flow Script
+        async function runSim() {
+            btn.style.display = 'none';
+
+            // 1. Enter Command
+            await typeText('./run_threat_simulation.sh --target=EdgeNode_Camaçari', typingArea, 30);
+            setTimeout(() => { typingArea.innerHTML = ''; }, 500);
+
+            // 2. Initial Telemetry
+            setTimeout(() => logLine('[Telemtry] Ingesting IoT Flow: 4.5 MB/s...', 'log-sys'), 1000);
+            
+            // 3. The Attack Hits (T+2s)
+            setTimeout(() => {
+                logLine('\n[GRAPH: SUPERVISOR] ROUTING EVENT TO `Agent_DLP_Edge`', 'log-sys');
+                logLine('[Agent_DLP_Edge] [ALERT] Unrecognized lateral movement detected on VLAN 40 (SCADA).', 'log-alert');
+                logLine('[Agent_DLP_Edge] Payload signature unknown. Escalating extraction protocol...', 'log-agent');
+                
+                // Dashboard Update
+                threatCounter.innerText = '1 (CRITICAL)';
+            }, 2500);
+
+            // 4. Prompt Chain & RAG (T+4s)
+            setTimeout(() => {
+                logLine('\n[GRAPH: RAG_INTEL] EXECUTING `context_engineering_chain`...', 'log-sys');
+                logLine('[RAG_Intel] Querying MITRE ICS Database...', 'log-rag');
+                logLine('[RAG_Intel] Vector Database Hit (Similarity: 0.94): Tactics T0801 / LockBit Variant.', 'log-rag');
+                logLine('[RAG_Intel] Returning contextual payload to `Agent_DLP_Edge`.', 'log-sys');
+            }, 4500);
+
+            // 5. Tool Use (Zero Trust Isolation) (T+7s)
+            setTimeout(() => {
+                logLine('\n[Agent_DLP_Edge] Context received. Ransomware profile confirmed.', 'log-agent');
+                logLine('[Agent_DLP_Edge] THOUGHT: To prevent factory lockdown, I must sever the connection in the Edge Router immediately.', 'log-agent');
+                logLine('[Agent_DLP_Edge] ACTION: Executing Tool `block_port_and_isolate_subnet(target_ip="10.0.0.12", strict=True)`', 'log-tool');
+                logLine('[TOOL_OUTPUT] Subnet Isolated successfully. Zero TCP propagation.', 'log-tool');
+            }, 7500);
+
+            // 6. C-Level Reporter Subgraph (Financial Sync) (T+10s)
+            setTimeout(() => {
+                logLine('\n[GRAPH: SUPERVISOR] ROUTING EVENT TO `Agent_CLevel_Report`', 'log-sys');
+                logLine('[Agent_CLevel_Report] Processing operation delta...', 'log-agent');
+                logLine('[Agent_CLevel_Report] Updating WebSocket endpoints for Executive Dashboard.', 'log-sys');
+                
+                // THE DASHBOARD ROCKETS UP
+                uptimeCounter.innerText = '48 h';
+                moneyCounter.innerText = 'R$ 580.000,00';
+                
+                // UI Magic
+                let count = 0;
+                let countInt = setInterval(() => {
+                    count += 10000;
+                    moneyCounter.innerText = `R$ ${count.toLocaleString('pt-BR')},00`;
+                    if(count >= 580000) clearInterval(countInt);
+                }, 20);
+
+            }, 10500);
+
+            // 7. Global Vaccine & Compliance (T+13s)
+            setTimeout(() => {
+                logLine('\n[Agent_Intel_Cloud] Extracting IOC Hash and broadcasting to federated tenants...', 'log-agent');
+                logLine('[TOOL_OUTPUT] 14 remote factories vaccinated successfully.', 'log-tool');
+                logLine('\n[GRAPH: SUPERVISOR] Orchestration Loop Complete. Returning to standby.', 'log-sys');
+
+                // Compliance Update
+                compBanner.style.background = 'rgba(0, 255, 65, 0.1)';
+                compBanner.style.borderColor = 'var(--term-green)';
+                compIcon.outerHTML = `<svg id="comp-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--term-green)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                compTitle.style.color = 'var(--text-main)';
+                compTitle.innerText = 'COMPLIANCE 100% GARANTIDA (LGPD)';
+                compDesc.style.color = 'var(--term-green)';
+                compDesc.innerText = 'Contenção em Borda validada. Nenhum VAZAMENTO e NENHUMA PARALISAÇÃO confirmada.';
+            }, 13000);
+        }
+    </script>
+</body>
+</html>

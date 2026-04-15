@@ -1,14 +1,17 @@
 Descrição do Desafio
 Contexto da Empresa
-A Petrobras é uma empresa de energia que possui a inovação em seu DNA, com investimentos contínuos em pesquisa, desenvolvimento e tecnologias avançadas, como inteligência artificial e análise de dados. Essas iniciativas têm como objetivo aumentar a produtividade, melhorar a experiência dos colaboradores e qualificar a tomada de decisão.
+A Petrobras é uma empresa de energia que possui a inovação em seu DNA, com investimentos contínuos em pesquisa, desenvolvimento e tecnologias avançadas, como inteligência artificial e análise de dados.
+ Essas iniciativas têm como objetivo aumentar a produtividade, melhorar a experiência dos colaboradores e qualificar a tomada de decisão.
 
 Nesse contexto, a empresa busca evoluir o uso de soluções digitais corporativas, explorando novas interfaces, como dispositivos vestíveis (ex.: óculos de realidade aumentada), que permitem acesso mais ágil, contextualizado e integrado ao ambiente de trabalho.
 
 Problema Central
-Atualmente, soluções de analytics e assistentes baseados em inteligência artificial são acessadas principalmente por computadores e smartphones. A adoção de dispositivos vestíveis, como óculos inteligentes, amplia as possibilidades de uso, mas também introduz novos desafios relacionados à segurança da informação. Esses dispositivos podem capturar e processar dados sensíveis (como imagem, áudio e localização), além de se conectarem a diferentes sistemas e serviços externos, aumentando os riscos de acesso indevido, vazamento de informações e uso inadequado de dados corporativos.
+Atualmente, soluções de analytics e assistentes baseados em inteligência artificial são acessadas principalmente por computadores e smartphones. A adoção de dispositivos vestíveis, como óculos inteligentes, amplia as possibilidades de uso, mas também introduz novos desafios relacionados à segurança da informação.
+Esses dispositivos podem capturar e processar dados sensíveis (como imagem, áudio e localização), além de se conectarem a diferentes sistemas e serviços externos, aumentando os riscos de acesso indevido, vazamento de informações e uso inadequado de dados corporativos.
 
 Desafio (Como Podemos)
-Como podemos garantir o acesso seguro a sistemas corporativos baseados em inteligência artificial por meio de óculos de realidade aumentada, assegurando a autenticação confiável do usuário, a proteção dos dados durante toda a comunicação e processamento, e a prevenção de vazamento de informações sensíveis, mesmo com o uso de redes e serviços de terceiros?
+Como podemos garantir o acesso seguro a sistemas corporativos baseados em inteligência artificial por meio de óculos de realidade aumentada, assegurando a autenticação confiável do usuário, 
+a proteção dos dados durante toda a comunicação e processamento, e a prevenção de vazamento de informações sensíveis, mesmo com o uso de redes e serviços de terceiros?
 
 Informações Adicionais
 O foco do desafio está na conexão segura por meio de dispositivos vestíveis (smart glasses).
