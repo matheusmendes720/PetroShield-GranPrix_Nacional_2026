@@ -16,9 +16,12 @@ from scripts.dlp_proxy.demo_ui import (
     PetroShieldTUI,
     DashboardContent,
     OperationsContent,
+    TheatreContent,
     AnalyticsContent,
     NodeTransition,
     WorkflowComplete,
+    TheatreLogEntry,
+    TheatreSceneComplete,
 )
 
 
@@ -32,7 +35,7 @@ class TestTUIComposition(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(app.title, "PetroShield AxeGuard — SOC Agentic v2.5")
             self.assertEqual(app.sub_title, "Grand Prix SENAI Nacional 2026")
 
-    async def test_all_three_tabs_exist(self):
+    async def test_all_tabs_exist(self):
         app = PetroShieldTUI()
         async with app.run_test() as pilot:
             await pilot.pause()
@@ -40,7 +43,9 @@ class TestTUIComposition(unittest.IsolatedAsyncioTestCase):
             tab_ids = [t.id for t in tabs]
             self.assertIn("tab-dashboard", tab_ids)
             self.assertIn("tab-operations", tab_ids)
+            self.assertIn("tab-theatre", tab_ids)
             self.assertIn("tab-analytics", tab_ids)
+            self.assertEqual(len(tab_ids), 4)
 
     async def test_dashboard_content_mounts(self):
         app = PetroShieldTUI()
@@ -68,6 +73,19 @@ class TestTUIComposition(unittest.IsolatedAsyncioTestCase):
             self.assertIsNotNone(ops.query_one("#run-wf-btn"))
             self.assertIsNotNone(ops.query_one("#ops-log"))
             self.assertIsNotNone(ops.query_one("#outcome-inspector"))
+
+    async def test_theatre_content_mounts(self):
+        app = PetroShieldTUI()
+        async with app.run_test() as pilot:
+            await pilot.pause()
+            await pilot.click("#tab-theatre")
+            await pilot.pause()
+            theatre = app.query_one("#tab-theatre TheatreContent")
+            self.assertIsNotNone(theatre)
+            self.assertIsNotNone(theatre.query_one("#scene-table"))
+            self.assertIsNotNone(theatre.query_one("#run-scene-btn"))
+            self.assertIsNotNone(theatre.query_one("#theatre-log"))
+            self.assertIsNotNone(theatre.query_one("#theatre-outcome"))
 
     async def test_analytics_content_mounts(self):
         app = PetroShieldTUI()
@@ -203,7 +221,7 @@ class TestAnalyticsCharts(unittest.IsolatedAsyncioTestCase):
             with console.capture() as capture:
                 console.print(chart.renderable)
             text = capture.get()
-            self.assertIn("Financial Impact by Playbook", text)
+            self.assertIn("Impacto Financeiro por Playbook", text)
 
     async def test_trend_chart_populated(self):
         app = PetroShieldTUI()
@@ -217,7 +235,7 @@ class TestAnalyticsCharts(unittest.IsolatedAsyncioTestCase):
             with console.capture() as capture:
                 console.print(chart.renderable)
             text = capture.get()
-            self.assertIn("Cost Avoided Trend", text)
+            self.assertIn("Tendência de Custo Evitado", text)
 
     async def test_fleet_health_populated(self):
         app = PetroShieldTUI()
@@ -231,8 +249,8 @@ class TestAnalyticsCharts(unittest.IsolatedAsyncioTestCase):
             with console.capture() as capture:
                 console.print(chart.renderable)
             text = capture.get()
-            self.assertIn("Fleet Health", text)
-            self.assertIn("Total Nodes", text)
+            self.assertIn("Saúde da Frota", text)
+            self.assertIn("Total de Nodes", text)
 
 
 if __name__ == "__main__":
