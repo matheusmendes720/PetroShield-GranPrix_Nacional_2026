@@ -17,7 +17,7 @@ Paleta PetroShield:
 import json
 import time
 import sys
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Any, Tuple, Callable
 import asyncio
 
 try:
@@ -56,10 +56,12 @@ class AgenticLogger:
         json_log_path: Optional[str] = None,
         verbose: bool = True,
         use_rich: bool = True,
+        emit_callback: Optional[Callable[[dict], None]] = None,
     ):
         self.verbose = verbose
         self.use_rich = use_rich and HAS_RICH
         self.json_log_path = json_log_path
+        self.emit_callback = emit_callback
         self._log_buffer: List[dict] = []
         self._sequence = 0
         self._subscribers: List[asyncio.Queue] = []
@@ -79,6 +81,13 @@ class AgenticLogger:
         """Emite um log para todos os targets configurados."""
         self._log_buffer.append(entry)
         self._sequence += 1
+
+        # Callback síncrono para integração com TUI/Dashboard
+        if self.emit_callback:
+            try:
+                self.emit_callback(entry)
+            except Exception:
+                pass
 
         # Target 1: Rich Console (STDOUT)
         if self.verbose:
