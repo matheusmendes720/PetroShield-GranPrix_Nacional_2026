@@ -133,11 +133,13 @@ class TheatreEngine:
         model: str = "gpt-4o-mini",
         quiet: bool = True,
         json_log_path: Optional[str] = None,
+        emit_callback: Optional[Callable[[dict], None]] = None,
     ):
         self.mode = mode
         self.model = model
         self.quiet = quiet
         self.json_log_path = json_log_path
+        self.emit_callback = emit_callback
         self.bridge = OpenAIBridge(mode=mode, model=model)
         self.calculator = FinancialCalculator()
         self._graph_def = None
@@ -152,6 +154,7 @@ class TheatreEngine:
             json_log_path=self.json_log_path,
             verbose=not self.quiet,
             use_rich=not self.quiet,
+            emit_callback=self.emit_callback,
         )
         self._graph_def = build_agentic_graph(self._logger, self.bridge, self.calculator)
         self._compiled = self._graph_def.compile()
