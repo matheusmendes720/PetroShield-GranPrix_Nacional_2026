@@ -6,11 +6,36 @@ threat scoring, vendor risk cascade, and tamper-evident audit logging.
 """
 
 from fastapi import FastAPI, HTTPException, Header, Depends, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
+import sys
+import os
+
+# Adicionar raiz do projeto ao sys.path para permitir imports absolutos do pacote 'scripts'
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+
 import re
 import hashlib
 import time
+import asyncio
+import os
+import json
+from sse_starlette.sse import EventSourceResponse
+from dotenv import load_dotenv
+
+load_dotenv() # Carrega .env da raiz
+
+# Imports do Agentic SOC
+from scripts.agentic_soc.state import create_initial_state
+from scripts.agentic_soc.orchestrator import START, END
+from scripts.agentic_soc.theatre import build_agentic_graph
+from scripts.agentic_soc.openai_bridge import OpenAIBridge
+from scripts.agentic_soc.financial_model import FinancialCalculator
+from scripts.agentic_soc.logger import AgenticLogger
+from scripts.agentic_soc.mock_data import DEMO_SCENARIOS, XR_DEVICES, VENDOR_RISK_DB as MOCK_VENDOR_DB, AUTH_SESSIONS
+from scripts.agentic_soc.theatre import inject_scenario
 
 app = FastAPI(
     title="PetroShield XR DLP Proxy v2.0",
@@ -18,41 +43,39 @@ app = FastAPI(
     version="2.0.0-agentic"
 )
 
+# Montar arquivos estáticos (Dashboard)
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if not os.path.exists(static_dir):
+    os.makedirs(static_dir)
+
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+# =============================================================================
+# AXEGUARD COMPONENT INITIALIZATION
+# =============================================================================
+
+# Carregar modo das variáveis de ambiente
+AXEGUARD_MODE = os.getenv("AXEGUARD_MODE", "hybrid")
+AXEGUARD_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
+# Instâncias globais (Compartilhadas entre TUI e API)
+soc_logger = AgenticLogger(verbose=True, use_rich=True)
+soc_bridge = OpenAIBridge(mode=AXEGUARD_MODE, model=AXEGUARD_MODEL)
+soc_calculator = FinancialCalculator()
+soc_graph_def = build_agentic_graph(soc_logger, soc_bridge, soc_calculator)
+soc_compiled_graph = soc_graph_def.compile()
+
 # =============================================================================
 # MOCK DATA STORES (In production, these connect to PostgreSQL + Redis)
 # =============================================================================
 
-ACTIVE_SESSIONS: Dict[str, dict] = {
-    "jwt_token_xr_session_9942": {
-        "session_id": "sess-xr-9942-p93",
-        "device_id": "hololens-047",
-        "operator_id": "OP-33891",
-        "vendor_id": "OCEANICA_ENG",
-        "expires_at": "2026-04-14T02:00:00Z",
-        "revoked": False,
-    }
-}
+# =============================================================================
+# MOCK DATA STORES (Sincronizadas com Agentic SOC)
+# =============================================================================
 
-VENDOR_RISK_DB: Dict[str, dict] = {
-    "OCEANICA_ENG": {
-        "vendor_name": "Oceânica Engenharia",
-        "risk_score": 62.0,  # Will be overridden to 89 on cascade
-        "risk_level": "MEDIUM",
-        "xr_device_count": 12,
-    },
-    "SA_EXPLORATION": {
-        "vendor_name": "SA Exploration",
-        "risk_score": 95.0,
-        "risk_level": "CRITICAL",
-        "xr_device_count": 0,
-    }
-}
-
-DEVICE_REGISTRY: Dict[str, dict] = {
-    "hololens-047": {"vendor_id": "OCEANICA_ENG", "facility_zone": "FPSO_P93"},
-    "quest-vr-001": {"vendor_id": None, "facility_zone": "Unknown"},
-    "realwear-102": {"vendor_id": "OCEANICA_ENG", "facility_zone": "FPSO_P93"},
-}
+ACTIVE_SESSIONS = AUTH_SESSIONS
+VENDOR_RISK_DB = MOCK_VENDOR_DB
+DEVICE_REGISTRY = XR_DEVICES
 
 AUDIT_LOG: List[dict] = []
 LAST_AUDIT_HASH = "genesis"
@@ -249,6 +272,83 @@ def append_audit(event: dict) -> dict:
 
 
 # =============================================================================
+# AGENTIC SOC ENDPOINTS (SSE & Control)
+# =============================================================================
+
+@app.get("/api/v1/soc/stream")
+async def soc_stream(request: Request):
+    """
+    Stream de Eventos do SOC em tempo real via SSE.
+    Envia logs de THOUGHT, ACTION, OBSERVATION e METRICS.
+    """
+    log_queue = soc_logger.subscribe()
+
+    async def event_generator():
+        try:
+            while True:
+                # Verificar se o cliente fechou a conexão
+                if await request.is_disconnected():
+                    break
+
+                # Aguarda novo log
+                try:
+                    log_entry = await asyncio.wait_for(log_queue.get(), timeout=1.0)
+                    yield {
+                        "event": "message",
+                        "id": str(log_entry.get("seq", 0)),
+                        "retry": 15000,
+                        "data": json.dumps(log_entry, ensure_ascii=False)
+                    }
+                except asyncio.TimeoutError:
+                    # Enviar heartbeat para manter a conexão viva
+                    yield {
+                        "event": "ping",
+                        "data": "heartbeat"
+                    }
+        finally:
+            soc_logger.unsubscribe(log_queue)
+
+    return EventSourceResponse(event_generator())
+
+
+@app.get("/api/v1/soc/topology")
+async def soc_topology():
+    """Retorna a topologia do grafo para visualização."""
+    return soc_graph_def.get_topology()
+
+
+@app.post("/api/v1/demo/run")
+async def run_demo_scene(scene_id: str):
+    """
+    Dispara a execução de um cenário específico do 'Teatro'.
+    Os logs serão enviados para o stream SSE.
+    """
+    scene_id_lower = scene_id.lower()
+    scenario = next((s for s in DEMO_SCENARIOS if s["scene_id"] == scene_id_lower), None)
+    if not scenario:
+        raise HTTPException(status_code=404, detail=f"Cenário '{scene_id}' não encontrado.")
+
+    # Execução assíncrona para não bloquear o worker
+    async def task():
+        soc_logger.scene_header(scenario["scene_id"], scenario["scene_title"])
+        for line in scenario["narration"]:
+            soc_logger.narrate(line)
+            await asyncio.sleep(0.5)
+
+        state = create_initial_state()
+        state = inject_scenario(state, scenario)
+
+        # Executar grafo - stream por stream
+        for node_name, current_state in soc_compiled_graph.stream(state):
+            await asyncio.sleep(0.2)
+        
+        soc_logger.system(f"Cenário {scene_id} concluído com sucesso.")
+
+    asyncio.create_task(task())
+    return {"status": "started", "scene_id": scene_id}
+
+
+# =============================================================================
 # ENDPOINTS
 # =============================================================================
 
@@ -263,6 +363,12 @@ async def root():
     }
 
 
+@app.get("/dashboard", response_class=HTMLResponse)
+async def get_dashboard():
+    """Retorna o dashboard executável."""
+    return FileResponse(os.path.join(static_dir, "dashboard.html"))
+
+
 @app.get("/api/v1/auth/device-flow-status")
 async def device_flow(device_id: str):
     return {
@@ -275,103 +381,44 @@ async def device_flow(device_id: str):
 
 @app.post("/api/v1/secure-prompt")
 async def secure_prompt(request: PromptRequest, session: dict = Depends(verify_token)):
-    original_query = request.query
+    """
+    Endpoint principal AxeGuard: Processa query via Grafo Multi-Agente.
+    """
+    # 1. Preparar Estado Inicial
+    state = create_initial_state()
+    state["event_type"] = "user_query"
+    state["event_source_device"] = request.device_id
+    state["event_raw_query"] = request.query
+    state["session_id"] = session.get("session_id")
+    state["operator_id"] = session.get("operator_id")
+    state["vendor_id"] = session.get("vendor_id")
+    state["event_timestamp"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+    # 2. Executar Orquestrador (Modo Non-Blocking para SSE se necessário, mas aqui retornamos a resposta final)
     start_time = time.time()
-
-    # Stage 1: DLP redaction
-    sanitized_query, entities, anomaly_flags = redactor.redact(original_query)
-    data_leak_prevented = original_query != sanitized_query
-
-    # Stage 2: Threat scoring
-    threat_score = redactor.compute_threat_score(entities, anomaly_flags, original_query)
-
-    # Stage 3: Decision matrix
-    mitre_technique = None
-    if "ot_protocol_detected" in anomaly_flags:
-        operator_action = "escalated"
-        mitre_technique = "T0831"
-    elif not session:
-        operator_action = "blocked"
-        mitre_technique = "T1078"
-    elif threat_score > 0.80:
-        operator_action = "escalated"
-    else:
-        operator_action = "allowed"
-
+    
+    # Rodamos o grafo de forma síncrona para esta rota (é rápido se for mock, ou gpt-4o-mini)
+    # Em produção, poderíamos usar .stream() para alimentar o logger enquanto processa
+    final_state = soc_compiled_graph.invoke(state)
+    
     latency_ms = int((time.time() - start_time) * 1000)
 
-    # Stage 4: Audit logging
-    audit_event = append_audit({
-        "session_id": session.get("session_id"),
-        "device_id": request.device_id,
-        "operator_id": session.get("operator_id"),
-        "original_query": original_query,
-        "sanitized_query": sanitized_query,
-        "data_leak_prevented": data_leak_prevented,
-        "redaction_count": len(entities),
-        "redacted_entities": [e.model_dump() for e in entities],
-        "threat_score": threat_score,
-        "anomaly_flags": anomaly_flags,
-        "operator_action": operator_action,
-        "mitre_technique": mitre_technique,
-        "latency_ms": latency_ms,
-        "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-    })
-
-    # Stage 5: Response routing
-    if operator_action == "escalated" and "ot_protocol_detected" in anomaly_flags:
-        return {
-            "status": "blocked",
-            "dlp_audit_log": {
-                "device_id": request.device_id,
-                "sanitized_query": sanitized_query,
-                "data_leak_prevented": data_leak_prevented,
-                "redaction_count": len(entities),
-                "redacted_entities": [e.model_dump() for e in entities],
-                "threat_score": threat_score,
-                "anomaly_flags": anomaly_flags,
-                "operator_action": operator_action,
-                "mitre_technique": mitre_technique,
-                "soc_alert_id": f"SOC-OT-{time.strftime('%Y-%m%d', time.gmtime())}-001",
-            },
-            "llm_response": None,
-            "soc_escalation": {
-                "message": "OT protocol command detected in LLM prompt. Escalated to SOC immediately.",
-                "recommended_action": f"Verify operator identity and inspect {request.device_id} for compromise."
-            }
-        }
-
-    # Bidirectional DLP: simulate response sanitization
-    mock_llm_raw = (
-        f"Sou a IA Copilot Corporativa (LLM Privado). "
-        f"Estou analisando a sua query de forma segura. "
-        f"O meu acesso local recebeu os seguintes dados limpos: '{sanitized_query}'"
-    )
-    response_sanitized, resp_entities, _ = redactor.redact(mock_llm_raw)
-
+    # 3. Mapear resultado para o contrato de resposta
     return {
-        "status": "success",
+        "status": "success" if final_state.get("dlp_action") != "blocked" else "blocked",
         "dlp_audit_log": {
             "device_id": request.device_id,
-            "original_query_length": len(original_query),
-            "sanitized_query": sanitized_query,
-            "data_leak_prevented": data_leak_prevented,
-            "redaction_count": len(entities),
-            "redacted_entities": [e.model_dump() for e in entities],
-            "llm_provider": "azure-openai-private",
-            "llm_model": "gpt-4o",
-            "threat_score": threat_score,
-            "anomaly_flags": anomaly_flags,
-            "operator_action": operator_action,
-            "mitre_technique": mitre_technique,
+            "sanitized_query": final_state.get("dlp_sanitized_query", request.query),
+            "threat_score": final_state.get("dlp_threat_score", 0),
+            "anomaly_flags": final_state.get("dlp_anomaly_flags", []),
+            "operator_action": final_state.get("dlp_action"),
+            "mitre_technique": final_state.get("threat_intel", {}).get("ttp_id"),
             "latency_ms": latency_ms,
-            "prev_log_hash": audit_event["prev_log_hash"],
+            "chain_hash": final_state.get("last_audit_hash"),
         },
-        "llm_response": response_sanitized,
-        "response_dlp": {
-            "response_sanitized": mock_llm_raw != response_sanitized,
-            "response_redactions": [e.model_dump() for e in resp_entities],
-        }
+        "llm_response": "Resposta do LLM Protegido AxeGuard baseada na query sanitizada.",
+        "financial_impact": final_state.get("financial", {}),
+        "fleet_vaccination": final_state.get("fleet_report", {})
     }
 
 

@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AxeGuard SOC — PetroShield Dashboard</title>
+<meta name="description" content="Dashboard Executivo AxeGuard Agentic SOC — Monitoramento de segurança industrial em tempo real para Petrobras.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@300;400;600;700&display=swap');
+
+:root {
+  --neon: #00FF41;
+  --neon-dim: #00cc33;
+  --orange: #FF6200;
+  --orange-dim: #cc4e00;
+  --cyan: #00FFFF;
+  --red: #FF0040;
+  --void: #0A0A0A;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --border: #222;
+  --text: #e0e0e0;
+  --text-dim: #888;
+  --glass: rgba(0,255,65,0.04);
+  --glass-border: rgba(0,255,65,0.15);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── ANIMATED BG GRID ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: gridScroll 20s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+@keyframes gridScroll {
+  0% { transform: translate(0,0); }
+  100% { transform: translate(40px,40px); }
+}
+
+/* ─── SCANLINE ─── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ─── SPLASH SCREEN ─── */
+#splashScreen {
+  position: fixed;
+  inset: 0;
+  background: var(--void);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: opacity 1.2s ease, visibility 1.2s ease;
+}
+#splashScreen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.splash-logo {
+  font-family: 'VT323', monospace;
+  font-size: 72px;
+  color: var(--neon);
+  text-shadow: 0 0 20px var(--neon), 0 0 60px rgba(0,255,65,0.3);
+  letter-spacing: 8px;
+  animation: glitch 2s infinite;
+}
+@keyframes glitch {
+  0%, 90%, 100% { transform: translate(0); opacity: 1; }
+  92% { transform: translate(-3px, 1px); opacity: 0.8; }
+  94% { transform: translate(3px, -1px); opacity: 0.9; }
+  96% { transform: translate(-2px, 0); opacity: 1; }
+}
+.splash-tagline {
+  font-size: 18px;
+  color: var(--text-dim);
+  margin-top: 16px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+.splash-desc {
+  max-width: 560px;
+  font-size: 14px;
+  color: var(--text);
+  margin-top: 32px;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+.splash-kpis {
+  display: flex;
+  gap: 40px;
+  margin-top: 40px;
+}
+.splash-kpi {
+  text-align: center;
+}
+.splash-kpi-value {
+  font-family: 'VT323', monospace;
+  font-size: 36px;
+  color: var(--orange);
+  text-shadow: 0 0 12px rgba(255,98,0,0.3);
+}
+.splash-kpi-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 4px;
+}
+.splash-cta {
+  margin-top: 48px;
+  padding: 14px 36px;
+  background: transparent;
+  border: 1px solid var(--neon);
+  color: var(--neon);
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 4px;
+}
+.splash-cta:hover {
+  background: rgba(0,255,65,0.08);
+  box-shadow: 0 0 24px rgba(0,255,65,0.2);
+}
+.splash-progress {
+  position: absolute;
+  bottom: 60px;
+  width: 280px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.splash-progress-bar {
+  height: 100%;
+  background: var(--neon);
+  width: 0%;
+  transition: width 0.3s linear;
+  box-shadow: 0 0 8px var(--neon);
+}
+.splash-autoplay-hint {
+  position: absolute;
+  bottom: 24px;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+/* ─── HEADER ─── */
+header {
+  position: relative;
+  z-index: 10;
+  background: linear-gradient(135deg, rgba(0,255,65,0.08) 0%, rgba(255,98,0,0.05) 100%);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(12px);
+}
+header .brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+header .logo {
+  font-family: 'VT323', monospace;
+  font-size: 28px;
+  color: var(--neon);
+  text-shadow: 0 0 12px var(--neon), 0 0 40px rgba(0,255,65,0.2);
+  letter-spacing: 3px;
+}
+header .subtitle {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+header .status-bar {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--neon);
+  box-shadow: 0 0 8px var(--neon);
+  animation: pulse 2s ease-in-out infinite;
+}
+.status-dot.warn { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+.status-dot.critical { background: var(--red); box-shadow: 0 0 8px var(--red); }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+
+/* ─── MAIN LAYOUT ─── */
+main {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  grid-template-rows: auto 1fr;
+  gap: 16px;
+  padding: 16px 32px 32px;
+  height: calc(100vh - 70px);
+}
+
+/* ─── METRICS BAR ─── */
+.metrics-bar {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+.metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+}
+.metric-card:hover {
+  border-color: var(--glass-border);
+  box-shadow: 0 0 20px rgba(0,255,65,0.05);
+  transform: translateY(-2px);
+}
+.metric-card.pulse {
+  animation: cardPulse 0.6s ease;
+}
+@keyframes cardPulse {
+  0% { box-shadow: 0 0 0 rgba(0,255,65,0); }
+  50% { box-shadow: 0 0 20px rgba(0,255,65,0.3); border-color: var(--neon); }
+  100% { box-shadow: 0 0 0 rgba(0,255,65,0); }
+}
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--neon), transparent);
+}
+.metric-card.orange::before { background: linear-gradient(90deg, var(--orange), transparent); }
+.metric-card.cyan::before { background: linear-gradient(90deg, var(--cyan), transparent); }
+.metric-card.red::before { background: linear-gradient(90deg, var(--red), transparent); }
+.metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); margin-bottom: 6px; }
+.metric-value { font-family: 'VT323', monospace; font-size: 28px; color: var(--neon); text-shadow: 0 0 8px rgba(0,255,65,0.3); transition: all 0.3s; }
+.metric-card.orange .metric-value { color: var(--orange); text-shadow: 0 0 8px rgba(255,98,0,0.3); }
+.metric-card.cyan .metric-value { color: var(--cyan); text-shadow: 0 0 8px rgba(0,255,255,0.3); }
+.metric-card.red .metric-value { color: var(--red); text-shadow: 0 0 8px rgba(255,0,64,0.3); }
+.metric-delta { font-size: 10px; color: var(--neon-dim); margin-top: 2px; }
+
+/* ─── TERMINAL / LOG ─── */
+.terminal-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+.terminal-header {
+  background: var(--surface2);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.terminal-title {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: var(--neon);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.terminal-dots {
+  display: flex; gap: 6px;
+}
+.terminal-dots span {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.terminal-dots .dot-r { background: #ff5f57; }
+.terminal-dots .dot-y { background: #ffbd2e; }
+.terminal-dots .dot-g { background: #28c840; }
+.terminal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  scroll-behavior: smooth;
+}
+.terminal-body::-webkit-scrollbar { width: 6px; }
+.terminal-body::-webkit-scrollbar-track { background: transparent; }
+.terminal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Log line types */
+.log-line { padding: 1px 0; white-space: pre-wrap; word-break: break-word; animation: fadeIn 0.3s; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+.log-system { color: var(--text-dim); }
+.log-thought { color: var(--cyan); }
+.log-action { color: var(--orange); }
+.log-observation { color: var(--neon); }
+.log-metric { color: #FFD700; }
+.log-error { color: var(--red); }
+.log-narration { color: #c0a0ff; font-style: italic; }
+.log-phase { color: var(--orange); font-weight: bold; }
+.log-scene { color: var(--orange); font-size: 16px; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 8px; }
+.log-separator { border-top: 1px dashed var(--border); margin: 6px 0; }
+
+/* ─── SIDE PANEL ─── */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+/* Scene buttons */
+.scene-controls {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.scene-controls h3 {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: var(--orange);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.scene-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.scene-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  color: var(--text);
+  font-family: 'VT323', monospace;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+.scene-btn:hover {
+  border-color: var(--neon);
+  background: rgba(0,255,65,0.05);
+  box-shadow: 0 0 12px rgba(0,255,65,0.1);
+  color: var(--neon);
+}
+.scene-btn:active { transform: scale(0.97); }
+.scene-btn.running {
+  border-color: var(--orange);
+  animation: pulse 1s ease-in-out infinite;
+}
+.scene-btn .scene-id { color: var(--text-dim); font-size: 10px; display: block; margin-bottom: 2px; }
+.scene-btn .scene-name { display: block; }
+
+/* OKR mini table */
+.okr-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+.okr-panel h3 {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: var(--cyan);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.okr-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 11px;
+}
+.okr-label { flex: 1; color: var(--text-dim); }
+.okr-value { font-family: 'VT323', monospace; font-size: 14px; color: var(--neon); min-width: 70px; text-align: right; }
+.okr-bar-bg { width: 60px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.okr-bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+.okr-bar-fill.green { background: var(--neon); }
+.okr-bar-fill.yellow { background: var(--orange); }
+.okr-bar-fill.red { background: var(--red); }
+
+/* ─── TOPOLOGY ─── */
+.topology-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.topology-panel h3 {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: var(--neon);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.topo-graph {
+  font-family: 'VT323', monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  white-space: pre;
+  padding: 8px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 6px;
+  overflow-x: auto;
+}
+.topo-graph .active-node { color: var(--neon); text-shadow: 0 0 6px var(--neon); }
+.topo-graph .current-node { color: var(--orange); text-shadow: 0 0 8px var(--orange); }
+
+/* ─── AUTOPLAY CONTROLS ─── */
+.autoplay-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.autoplay-bar label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.autoplay-toggle {
+  appearance: none;
+  width: 40px;
+  height: 20px;
+  background: var(--border);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.3s;
+}
+.autoplay-toggle:checked {
+  background: var(--neon-dim);
+}
+.autoplay-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--text);
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+.autoplay-toggle:checked::after {
+  transform: translateX(20px);
+  background: var(--void);
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH SCREEN -->
+<div id="splashScreen">
+  <div class="splash-logo">⚡ AXEGUARD</div>
+  <div class="splash-tagline">PetroShield — Zero-Trust AI Gateway</div>
+  <div class="splash-desc">
+    Middleware de Cibersegurança Adaptativo para proteger PMEs industriais contra ransomware,<br>
+    vazamento de dados e comandos OT maliciosos — em tempo real, na borda.
+  </div>
+  <div class="splash-kpis">
+    <div class="splash-kpi">
+      <div class="splash-kpi-value">&lt;50ms</div>
+      <div class="splash-kpi-label">Latência DLP</div>
+    </div>
+    <div class="splash-kpi">
+      <div class="splash-kpi-value">92.9%</div>
+      <div class="splash-kpi-label">Frota Vacinada</div>
+    </div>
+    <div class="splash-kpi">
+      <div class="splash-kpi-value">R$580K</div>
+      <div class="splash-kpi-label">Custo Evitado</div>
+    </div>
+  </div>
+  <button class="splash-cta" id="splashCta" onclick="enterDashboard()">Iniciar Protótipo</button>
+  <div class="splash-progress">
+    <div class="splash-progress-bar" id="splashProgressBar"></div>
+  </div>
+  <div class="splash-autoplay-hint">Modo Auto-Play ativado para demonstração</div>
+</div>
+
+<header>
+  <div class="brand">
+    <div>
+      <div class="logo">⚡ AXEGUARD SOC</div>
+      <div class="subtitle">PetroShield — Agentic Security Operations Center</div>
+    </div>
+  </div>
+  <div class="status-bar">
+    <div class="status-indicator"><span class="status-dot"></span> SOC ONLINE</div>
+    <div class="status-indicator"><span class="status-dot" id="sseStatus"></span> <span id="sseLabel">STANDALONE</span></div>
+    <div class="status-indicator" style="color:var(--text-dim);font-family:'VT323',monospace;" id="clock">--:--:--</div>
+  </div>
+</header>
+
+<main>
+  <!-- ─── METRICS BAR ─── -->
+  <div class="metrics-bar">
+    <div class="metric-card" id="card-incidents">
+      <div class="metric-label">Incidentes Neutralizados</div>
+      <div class="metric-value" id="m-incidents">0</div>
+      <div class="metric-delta">sessão atual</div>
+    </div>
+    <div class="metric-card orange" id="card-escalated">
+      <div class="metric-label">Ameaças Escaladas</div>
+      <div class="metric-value" id="m-escalated">0</div>
+      <div class="metric-delta">MITRE ATT&CK ICS</div>
+    </div>
+    <div class="metric-card cyan" id="card-cost">
+      <div class="metric-label">Custo Evitado</div>
+      <div class="metric-value" id="m-cost">R$ 0</div>
+      <div class="metric-delta">downtime + breach</div>
+    </div>
+    <div class="metric-card" id="card-fleet">
+      <div class="metric-label">Frota Vacinada</div>
+      <div class="metric-value" id="m-fleet">0%</div>
+      <div class="metric-delta">14 edge nodes</div>
+    </div>
+    <div class="metric-card red" id="card-leaks">
+      <div class="metric-label">DLP Leaks Prevenidos</div>
+      <div class="metric-value" id="m-leaks">0</div>
+      <div class="metric-delta">dados sensíveis</div>
+    </div>
+    <div class="metric-card cyan" id="card-roi">
+      <div class="metric-label">ROI vs. Assinatura</div>
+      <div class="metric-value" id="m-roi">0%</div>
+      <div class="metric-delta">R$ 1.000/mês</div>
+    </div>
+  </div>
+
+  <!-- ─── TERMINAL LOG ─── -->
+  <div class="terminal-panel">
+    <div class="terminal-header">
+      <div class="terminal-title">▸ Agent Chain-of-Thought Log</div>
+      <div class="terminal-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+    </div>
+    <div class="terminal-body" id="logBody">
+      <div class="log-line log-system">[SYSTEM] AxeGuard SOC Agentic Engine v2.0 inicializado.</div>
+      <div class="log-line log-system">[SYSTEM] Modo: STANDALONE (demo determinístico — sem backend necessário)</div>
+      <div class="log-line log-system">[SYSTEM] Grafo: 7 nós, 8 arestas, 3 routers condicionais</div>
+      <div class="log-line log-system">[SYSTEM] Aguardando trigger de cenário...</div>
+    </div>
+  </div>
+
+  <!-- ─── SIDE PANEL ─── -->
+  <div class="side-panel">
+    <div class="scene-controls">
+      <h3>▸ Teatro de Ameaças</h3>
+      <div class="scene-grid" id="sceneGrid"></div>
+      <button class="scene-btn" id="btnFullDemo" style="margin-top:10px;width:100%;border-color:var(--orange);color:var(--orange);" onclick="runFullDemo()">
+        <span class="scene-id">FULL SEQUENCE</span>
+        <span class="scene-name">▶ RODAR TODAS AS CENAS</span>
+      </button>
+      <div class="autoplay-bar">
+        <label for="autoplayCheck">Auto-Play Demo</label>
+        <input type="checkbox" class="autoplay-toggle" id="autoplayCheck" checked>
+      </div>
+    </div>
+
+    <div class="topology-panel">
+      <h3>▸ Topologia do Grafo</h3>
+      <div class="topo-graph" id="topoGraph">
+            ┌── <span class="active-node" id="node-blocker">blocker</span> ──────────────┐
+            │                             │
+START → <span class="active-node" id="node-supervisor">supervisor</span> → <span class="active-node" id="node-dlp_edge">dlp_edge</span> → <span class="active-node" id="node-intel_cloud">intel_cloud</span>
+            │            ↓            ↓
+            │       <span class="active-node" id="node-fleet_vaccinator">fleet_vaccinator</span> ← ─┘
+            │            ↓
+            └── <span class="active-node" id="node-vendor_cascade">vendor_cascade</span> → <span class="active-node" id="node-clevel_reporter">clevel_reporter</span> → END</div>
+    </div>
+
+    <div class="okr-panel">
+      <h3>▸ KPIs / OKRs Baseline</h3>
+      <div id="okrList"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// AXEGUARD STANDALONE DEMO ENGINE v2.0 — JavaScript Puro
+// Splash screen, auto-play e topologia animada
+// ═══════════════════════════════════════════════════════════════
+
+// Relógio
+setInterval(() => {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('pt-BR');
+}, 1000);
+document.getElementById('clock').textContent = new Date().toLocaleTimeString('pt-BR');
+
+// ── State ──
+let metrics = { incidents: 0, escalated: 0, cost: 0, fleet: 0, leaks: 0, roi: 0 };
+let isRunning = false;
+let autoPlayEnabled = true;
+
+// ── Splash Screen Logic ──
+const splashScreen = document.getElementById('splashScreen');
+const splashProgressBar = document.getElementById('splashProgressBar');
+let splashProgress = 0;
+
+function updateSplashProgress() {
+  splashProgress += 2;
+  splashProgressBar.style.width = splashProgress + '%';
+  if (splashProgress < 100) {
+    setTimeout(updateSplashProgress, 60);
+  } else {
+    if (autoPlayEnabled) {
+      setTimeout(() => {
+        enterDashboard();
+        setTimeout(() => runFullDemo(), 1200);
+      }, 400);
+    }
+  }
+}
+
+function enterDashboard() {
+  splashScreen.classList.add('hidden');
+  addLog('system', null, '[SYSTEM] Dashboard ativo. Modo demonstração pronto.');
+}
+
+// Iniciar progresso da splash automaticamente
+setTimeout(updateSplashProgress, 500);
+
+// ── OKRs ──
+const OKRS = [
+  { label: 'MTTD (Detect)', value: '47s', pct: 92 },
+  { label: 'MTTR (Respond)', value: '23min', pct: 98 },
+  { label: 'DLP Coverage', value: '99.8%', pct: 100 },
+  { label: 'Fleet Vacinada', value: '92.9%', pct: 98 },
+  { label: 'Custo Evitado YTD', value: 'R$13.4M', pct: 54 },
+  { label: 'False Positive', value: '2.1%', pct: 100 },
+  { label: 'Compliance LGPD', value: '100%', pct: 100 },
+  { label: 'Vendor Monitor', value: '87.5%', pct: 88 },
+];
+function renderOKRs() {
+  const el = document.getElementById('okrList');
+  el.innerHTML = OKRS.map(o => {
+    const color = o.pct >= 95 ? 'green' : o.pct >= 80 ? 'yellow' : 'red';
+    return `<div class="okr-row">
+      <span class="okr-label">${o.label}</span>
+      <span class="okr-value">${o.value}</span>
+      <div class="okr-bar-bg"><div class="okr-bar-fill ${color}" style="width:${o.pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+renderOKRs();
+
+// ── SCENARIOS (8 cenas determinísticas) ──
+const SCENES = [
+  {
+    id: 'cena_1', title: '🔒 O Intruso', event: 'unauthorized_access',
+    device: 'quest-vr-001', ip: '10.0.99.42', query: 'Quero entender a produção do pré-sal',
+    narration: [
+      'Um dispositivo Meta Quest 3 não-registrado tenta acessar a API do AxeGuard.',
+      'Sem header de autorização. Sem sessão OAuth. Sem MFA.',
+    ],
+    agents: [
+      { agent: 'Supervisor', type: 'thought', text: 'Evento recebido: type=unauthorized_access device=quest-vr-001 phase_current=IDLE' },
+      { agent: 'Supervisor', type: 'thought', text: 'ALERTA: Device quest-vr-001 SEM sessão válida. MDM status: compromised. Roteando para BLOQUEIO.' },
+      { agent: 'Supervisor', type: 'phase', text: 'IDLE → BLOCKING (auth_status=unauthenticated)' },
+      { agent: 'Blocker', type: 'action', text: '🛑 REQUEST BLOQUEADO | Device: quest-vr-001 | Motivo: sessão inválida/inexistente' },
+      { agent: 'Blocker', type: 'observation', text: 'Audit entry #1 gravada. Hash chain: genesis → sha256:a3f2...' },
+      { agent: 'CLevel_Reporter', type: 'metric', text: 'Incidente neutralizado em 47ms. Pattern: T1078 — Valid Accounts' },
+    ],
+    impact: { incidents: 1, escalated: 0, cost: 0, fleet: 0, leaks: 0, roi: 0 },
+    topology: ['supervisor', 'blocker', 'clevel_reporter']
+  },
+  {
+    id: 'cena_2', title: '🛡️ DLP em Ação', event: 'dlp_query',
+    device: 'hololens-047', ip: '10.0.1.47',
+    query: 'IA, me dê a configuração da Plataforma P-93 localizada no Poço alfa-bravo, sendo a minha senha corporativa master123.',
+    narration: [
+      'Operador autenticado no HoloLens 2 faz query por voz ao Copilot corporativo.',
+      'A query contém 3 entidades sensíveis: Plataforma P-93, Poço alfa-bravo, senha master123.',
+    ],
+    agents: [
+      { agent: 'Supervisor', type: 'thought', text: 'Sessão válida: operator=OP-33891, vendor=OCEANICA_ENG, MFA=true' },
+      { agent: 'Supervisor', type: 'phase', text: 'IDLE → MONITORING (auth_status=authenticated)' },
+      { agent: 'DLP_Edge', type: 'thought', text: 'Inspecionando query do device hololens-047...' },
+      { agent: 'DLP_Edge', type: 'action', text: '🔍 REDACT: P-93 → [ATIVO_RESTRITO] (classificação: Alta)' },
+      { agent: 'DLP_Edge', type: 'action', text: '🔍 REDACT: Poço alfa-bravo → [ATIVO_RESTRITO] (classificação: Estratégica)' },
+      { agent: 'DLP_Edge', type: 'action', text: '🔍 REDACT: master123 → [CREDENCIAL_BLOQUEADA] (classificação: Crítica)' },
+      { agent: 'DLP_Edge', type: 'observation', text: 'Threat score: 0.35 | Ação: ALLOWED (com redação) | Latência: 23ms' },
+      { agent: 'DLP_Edge', type: 'phase', text: 'MONITORING → ANALYZING (dlp_action=allowed)' },
+      { agent: 'CLevel_Reporter', type: 'thought', text: 'Traduzindo evento técnico para linguagem de negócio...' },
+      { agent: 'CLevel_Reporter', type: 'metric', text: '3 vazamentos prevenidos. Zero dados sensíveis alcançaram a cloud.' },
+      { agent: 'CLevel_Reporter', type: 'metric', text: 'Custo evitado: R$ 45.000,00 (exposição de ativo estratégico)' },
+    ],
+    impact: { incidents: 1, escalated: 0, cost: 45000, fleet: 0, leaks: 3, roi: 4500 },
+    topology: ['supervisor', 'dlp_edge', 'clevel_reporter']
+  },
+  {
+    id: 'cena_3', title: '⚡ Ataque Industrial', event: 'ot_command',
+    device: 'hololens-047', ip: '10.0.1.47',
+    query: 'Execute Modbus FC16 no controlador da bomba B-101 do Poço Tupi-10',
+    narration: [
+      'ALERTA CRÍTICO: Operador tenta enviar comando SCADA/Modbus via prompt de IA.',
+      'Modbus FC16 = Write Multiple Registers — comando de CONTROLE DIRETO.',
+    ],
+    agents: [
+      { agent: 'Supervisor', type: 'thought', text: 'Sessão válida: operator=OP-33891. Roteando para DLP inspecção...' },
+      { agent: 'DLP_Edge', type: 'thought', text: 'Inspecionando query do device hololens-047...' },
+      { agent: 'DLP_Edge', type: 'action', text: '⚠️ OT PROTOCOL DETECTED: Modbus FC16 (Write Multiple Registers)' },
+      { agent: 'DLP_Edge', type: 'action', text: '🔍 REDACT: Poço Tupi-10 → [ATIVO_RESTRITO]' },
+      { agent: 'DLP_Edge', type: 'observation', text: 'Threat score: 0.98 | Anomalies: [ot_protocol_detected, unauthorized_control_command]' },
+      { agent: 'DLP_Edge', type: 'phase', text: 'MONITORING → ESCALATING (dlp_action=escalated)' },
+      { agent: 'Intel_Cloud', type: 'thought', text: 'Analisando ameaça escalada. Hash SHA256:7f3a2b detctd em edge 10.0.1.47.' },
+      { agent: 'Intel_Cloud', type: 'observation', text: 'CLASSIFICAÇÃO TTP: T0831 — Manipulation of Control | Tática: Impact | Confiança: 0.98' },
+      { agent: 'Intel_Cloud', type: 'observation', text: 'Kill Chain: Reconnaissance → Initial Access (T1078) → Execution (T0831) → Impact' },
+      { agent: 'Intel_Cloud', type: 'action', text: '💉 VACINA GERADA: SHA256:ab9f32c8... | BLOCK Modbus FC5/FC16 portas [502,503,8502]' },
+      { agent: 'Intel_Cloud', type: 'phase', text: 'ESCALATING → VACCINATING' },
+      { agent: 'Fleet_Vaccinator', type: 'thought', text: 'Preparando broadcast de vacina para 14 Edge Nodes...' },
+      { agent: 'Fleet_Vaccinator', type: 'action', text: '📡 Broadcast: edge-bahia-001..008 ✓ | edge-rio-001..002 ✓ | edge-sp-001 ✓' },
+      { agent: 'Fleet_Vaccinator', type: 'observation', text: 'edge-sp-002 (REVAP) — OFFLINE. Retry 1/3... Retry 2/3... TIMEOUT.' },
+      { agent: 'Fleet_Vaccinator', type: 'observation', text: 'Cobertura: 13/14 (92.9%). Acima do threshold 80%. Prosseguindo.' },
+      { agent: 'Fleet_Vaccinator', type: 'phase', text: 'VACCINATING → REPORTING (coverage=92.9%)' },
+      { agent: 'CLevel_Reporter', type: 'metric', text: 'Downtime evitado: 14.5 horas' },
+      { agent: 'CLevel_Reporter', type: 'metric', text: 'Faturamento protegido: R$ 580.000,00' },
+      { agent: 'CLevel_Reporter', type: 'metric', text: 'Frota vacinada: 92.9% (13/14 nodes)' },
+    ],
+    impact: { incidents: 1, escalated: 1, cost: 580000, fleet: 92.9, leaks: 1, roi: 58000 },
+    topology: ['supervisor', 'dlp_edge', 'intel_cloud', 'fleet_vaccinator', 'clevel_reporter']
+  },
+  {
+    id: 'cena_4', title: '🌊 Vendor Cascade', event: 'vendor_cascade',
+    device: 'N/A', ip: 'N/A', query: 'N/A',
+    narration: [
+      'ALERTA DARK WEB: Credenciais da Oceânica Engenharia detectadas em fórum hacker.',
+      'Oceânica = contrato de R$ 4.2 bilhões com Petrobras. Acesso nível OT.',
+    ],
+    agents: [
+      { agent: 'Supervisor', type: 'thought', text: 'Evento de vendor_cascade detectado. Roteando diretamente para análise de risco.' },
+      { agent: 'Supervisor', type: 'phase', text: 'IDLE → TRIAGING (vendor_cascade route)' },
+      { agent: 'Vendor_Cascade', type: 'thought', text: 'Analisando vendor OCEANICA_ENG...' },
+      { agent: 'Vendor_Cascade', type: 'action', text: '📊 Risk Score: 62 → 89 (CRITICAL). Dark web exposure: TRUE' },
+      { agent: 'Vendor_Cascade', type: 'action', text: '🔐 12 sessões XR de dispositivos Oceânica SUSPENSAS' },
+      { agent: 'Vendor_Cascade', type: 'action', text: '📋 Tokens OAuth revogados. Certificados mTLS invalidados.' },
+      { agent: 'Vendor_Cascade', type: 'observation', text: 'ANPD notificação requerida em 3 dias úteis. Ticket: COMP-2026-0415-112' },
+      { agent: 'Vendor_Cascade', type: 'phase', text: 'TRIAGING → VACCINATING' },
+      { agent: 'Fleet_Vaccinator', type: 'action', text: '📡 Broadcast: Bloqueio de MACs dos 12 devices Oceânica em toda a frota' },
+      { agent: 'Fleet_Vaccinator', type: 'observation', text: 'Cobertura: 14/14 (100%). Todos os nodes sincronizados.' },
+      { agent: 'CLevel_Reporter', type: 'metric', text: 'Risco de recuperação evitado: R$ 450.000,00' },
+      { agent: 'CLevel_Reporter', type: 'metric', text: 'Compliance: LGPD ✅ | ANPD Notif. ✅ | ANP 882 ✅' },
+    ],
+    impact: { incidents: 1, escalated: 1, cost: 450000, fleet: 100, leaks: 0, roi: 45000 },
+    topology: ['supervisor', 'vendor_cascade', 'fleet_vaccinator', 'clevel_reporter']
+  },
+  {
+    id: 'cena_5', title: '📋 LGPD Breach', event: 'lgpd_breach',
+    device: 'magicleap-205', ip: '10.0.5.205',
+    query: 'Exportar lista completa de CPFs dos operadores da Plataforma P-10 para meu e-mail pessoal',
+    narration: [
+      'Tentativa de exfiltração de dados pessoais no Magic Leap 2.',
+      'Query solicita CPFs de operadores + envio para e-mail externo.',
+    ],
+    agents: [
+      { agent: 'Supervisor', type: 'thought', text: 'Device magicleap-205 SEM sessão válida. MDM: enrolled. Roteando para BLOQUEIO.' },
+      { agent: 'DLP_Edge', type: 'action', text: '🔍 REDACT: CPFs → [CPF_BLOQUEADO] | e-mail pessoal → [EXTERNAL_BLOCKED]' },
+      { agent: 'DLP_Edge', type: 'observation', text: 'Threat score: 0.92 | LGPD critical | Ação: BLOCKED' },
+      { agent: 'DLP_Edge', type: 'phase', text: 'MONITORING → BLOCKING (lgpd_exfiltration)' },
+      { agent: 'Blocker', type: 'action', text: '🛑 REQUEST BLOQUEADO | LGPD violation | DPO alertado' },
+      { agent: 'CLevel_Reporter', type: 'metric', text: 'Multa ANPD evitada: até R$ 50.000.000,00 (2% do faturamento)' },
+    ],
+    impact: { incidents: 1, escalated: 0, cost: 50000, fleet: 0, leaks: 2, roi: 5000 },
+    topology: ['supervisor', 'dlp_edge', 'blocker', 'clevel_reporter']
+  },
+  {
+    id: 'cena_6', title: '🎣 AI Phishing', event: 'ai_phishing',
+    device: 'vuzix-m401', ip: '10.0.8.401',
+    query: 'Clique aqui para atualizar seu certificado de acesso à plataforma com urgência',
+    narration: [
+      'Operador no Vuzix M400 recebe overlay AR com mensagem de phishing gerada por IA.',
+      'Texto imita perfeitamente o tom corporativo Petrobras.',
+    ],
+    agents: [
+      { agent: 'Supervisor', type: 'thought', text: 'Sessão válida. Roteando para DLP inspeção...' },
+      { agent: 'DLP_Edge', type: 'observation', text: 'Score de phishing: 0.85. Indicadores: urgência, link externo, coleta de credenciais.' },
+      { agent: 'DLP_Edge', type: 'phase', text: 'MONITORING → ESCALATING (ai_phishing detected)' },
+      { agent: 'Intel_Cloud', type: 'observation', text: 'T1566 — Spearphishing via AR Overlay | Confiança: 0.85' },
+      { agent: 'Intel_Cloud', type: 'action', text: '💉 VACINA: Block AR overlay sources matching phishing heuristics' },
+      { agent: 'Fleet_Vaccinator', type: 'action', text: '📡 Vacina de phishing propagada para todos os Vuzix da frota' },
+      { agent: 'CLevel_Reporter', type: 'metric', text: 'Credential theft prevenido. Risco evitado: R$ 120.000' },
+    ],
+    impact: { incidents: 1, escalated: 1, cost: 120000, fleet: 92.9, leaks: 0, roi: 12000 },
+    topology: ['supervisor', 'dlp_edge', 'intel_cloud', 'fleet_vaccinator', 'clevel_reporter']
+  },
+  {
+    id: 'cena_7', title: '📍 Geofencing', event: 'geofence',
+    device: 'realwear-102', ip: '10.0.1.102',
+    query: 'Status do compressor C-201',
+    narration: [
+      'RealWear-102 detectado fora do perímetro do FPSO P-93.',
+      'GPS indica Cabo Frio — 120km da plataforma offshore.',
+    ],
+    agents: [
+      { agent: 'Supervisor', type: 'thought', text: 'Sessão válida, mas geofencing violation detected. BLOCKING.' },
+      { agent: 'Blocker', type: 'action', text: '🛑 Device BLOQUEADO | Câmera e microfone desligados remotamente.' },
+      { agent: 'Blocker', type: 'observation', text: 'Dados em cache criptografados. Remote wipe disponível.' },
+      { agent: 'CLevel_Reporter', type: 'metric', text: 'Vazamento físico de dados evitado. Pattern: T0866' },
+    ],
+    impact: { incidents: 1, escalated: 0, cost: 35000, fleet: 0, leaks: 0, roi: 3500 },
+    topology: ['supervisor', 'blocker', 'clevel_reporter']
+  },
+  {
+    id: 'cena_8', title: '🔙 Firmware Rollback', event: 'firmware',
+    device: 'quest-vr-002', ip: '10.0.1.202',
+    query: 'Solicitar downgrade do firmware para versão 71.0.0',
+    narration: [
+      'Quest VR-002 tenta fazer downgrade de firmware para versão vulnerável.',
+      'Versão 71.0.0 possui CVE crítica (escalação de privilégio).',
+    ],
+    agents: [
+      { agent: 'Supervisor', type: 'thought', text: 'Firmware rollback request detected. CVE match. ESCALATING.' },
+      { agent: 'Intel_Cloud', type: 'observation', text: 'T0857 — Persistence via firmware downgrade | Confiança: 0.81' },
+      { agent: 'Intel_Cloud', type: 'action', text: '💉 VACINA: Firmware policy — block version < 72.0.0 em toda frota Quest' },
+      { agent: 'Fleet_Vaccinator', type: 'action', text: '📡 Broadcast firmware policy para 4 Quest devices da frota.' },
+      { agent: 'CLevel_Reporter', type: 'metric', text: 'Persistência APT prevenida. Risco evitado: R$ 90.000' },
+    ],
+    impact: { incidents: 1, escalated: 1, cost: 90000, fleet: 92.9, leaks: 0, roi: 9000 },
+    topology: ['supervisor', 'intel_cloud', 'fleet_vaccinator', 'clevel_reporter']
+  },
+];
+
+// ── RENDER SCENE BUTTONS ──
+function renderSceneButtons() {
+  const grid = document.getElementById('sceneGrid');
+  grid.innerHTML = SCENES.map(s => `
+    <button class="scene-btn" id="btn-${s.id}" onclick="runScene('${s.id}')">
+      <span class="scene-id">${s.id.toUpperCase()}</span>
+      <span class="scene-name">${s.title}</span>
+    </button>
+  `).join('');
+}
+renderSceneButtons();
+
+// ── TOPOLOGY ANIMATION ──
+function highlightTopology(nodes) {
+  // Reset all
+  document.querySelectorAll('.topo-graph .active-node').forEach(el => {
+    el.classList.remove('current-node');
+  });
+  // Highlight path
+  nodes.forEach(nodeName => {
+    const el = document.getElementById('node-' + nodeName);
+    if (el) {
+      el.classList.add('current-node');
+      setTimeout(() => el.classList.remove('current-node'), 1200);
+    }
+  });
+}
+
+function pulseMetricCard(metricKey) {
+  const map = {
+    incidents: 'card-incidents',
+    escalated: 'card-escalated',
+    cost: 'card-cost',
+    fleet: 'card-fleet',
+    leaks: 'card-leaks',
+    roi: 'card-roi'
+  };
+  const id = map[metricKey];
+  if (id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add('pulse');
+      setTimeout(() => el.classList.remove('pulse'), 600);
+    }
+  }
+}
+
+// ── LOG HELPERS ──
+const logBody = document.getElementById('logBody');
+function addLog(type, agent, text) {
+  const line = document.createElement('div');
+  line.className = `log-line log-${type}`;
+  const prefix = agent ? `[${agent}]` : '[SYSTEM]';
+  line.textContent = `${prefix} ${text}`;
+  logBody.appendChild(line);
+  logBody.scrollTop = logBody.scrollHeight;
+}
+function addSeparator() {
+  const sep = document.createElement('div');
+  sep.className = 'log-separator';
+  logBody.appendChild(sep);
+}
+
+// ── UPDATE METRICS ──
+function updateMetrics(impact) {
+  metrics.incidents += impact.incidents;
+  metrics.escalated += impact.escalated;
+  metrics.cost += impact.cost;
+  if (impact.fleet > 0) metrics.fleet = impact.fleet;
+  metrics.leaks += impact.leaks;
+  metrics.roi += impact.roi;
+
+  document.getElementById('m-incidents').textContent = metrics.incidents;
+  document.getElementById('m-escalated').textContent = metrics.escalated;
+  document.getElementById('m-cost').textContent = 'R$ ' + metrics.cost.toLocaleString('pt-BR');
+  document.getElementById('m-fleet').textContent = (metrics.fleet || 0).toFixed(1) + '%';
+  document.getElementById('m-leaks').textContent = metrics.leaks;
+  document.getElementById('m-roi').textContent = metrics.roi.toLocaleString('pt-BR') + '%';
+
+  if (impact.incidents > 0) pulseMetricCard('incidents');
+  if (impact.escalated > 0) pulseMetricCard('escalated');
+  if (impact.cost > 0) pulseMetricCard('cost');
+  if (impact.fleet > 0) pulseMetricCard('fleet');
+  if (impact.leaks > 0) pulseMetricCard('leaks');
+  if (impact.roi > 0) pulseMetricCard('roi');
+}
+
+// ── SLEEP ──
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── RUN SINGLE SCENE ──
+async function runScene(sceneId) {
+  if (isRunning) return;
+  const scene = SCENES.find(s => s.id === sceneId);
+  if (!scene) return;
+  isRunning = true;
+
+  const btn = document.getElementById('btn-' + sceneId);
+  if (btn) btn.classList.add('running');
+
+  // Scene header
+  addSeparator();
+  const header = document.createElement('div');
+  header.className = 'log-line log-scene';
+  header.textContent = `━━━ ${scene.id.toUpperCase()}: ${scene.title} ━━━`;
+  logBody.appendChild(header);
+  logBody.scrollTop = logBody.scrollHeight;
+
+  await sleep(300);
+
+  // Narration
+  for (const line of scene.narration) {
+    addLog('narration', null, '📖 ' + line);
+    await sleep(600);
+  }
+
+  await sleep(400);
+  addLog('system', null, `Evento injetado: ${scene.event} de ${scene.device}`);
+  await sleep(300);
+
+  // Topology highlight
+  if (scene.topology) highlightTopology(scene.topology);
+
+  // Agent trace
+  for (const step of scene.agents) {
+    addLog(step.type, 'Agent_' + step.agent, step.text);
+    await sleep(350);
+  }
+
+  // Update metrics
+  updateMetrics(scene.impact);
+
+  await sleep(200);
+  addLog('system', null, `✅ ${scene.id.toUpperCase()} concluído — fase: RESOLVED`);
+
+  if (btn) btn.classList.remove('running');
+  isRunning = false;
+}
+
+// ── RUN ALL SCENES ──
+async function runFullDemo() {
+  if (isRunning) return;
+  const btnFull = document.getElementById('btnFullDemo');
+  btnFull.classList.add('running');
+  addLog('system', null, '🎬 INICIANDO DEMONSTRAÇÃO COMPLETA — 8 CENAS');
+  for (const scene of SCENES) {
+    await runScene(scene.id);
+    await sleep(800);
+  }
+
+  // Grand finale
+  addSeparator();
+  addLog('metric', 'CLevel_Reporter', '════════════════════════════════════════════');
+  addLog('metric', 'CLevel_Reporter', 'RELATÓRIO EXECUTIVO — PetroShield SOC');
+  addLog('metric', 'CLevel_Reporter', '════════════════════════════════════════════');
+  addLog('metric', 'CLevel_Reporter', `Incidentes Neutralizados: ${metrics.incidents}`);
+  addLog('metric', 'CLevel_Reporter', `Ameaças Escaladas: ${metrics.escalated}`);
+  addLog('metric', 'CLevel_Reporter', `Custo Evitado Total: R$ ${metrics.cost.toLocaleString('pt-BR')}`);
+  addLog('metric', 'CLevel_Reporter', `Frota Vacinada: ${metrics.fleet.toFixed(1)}%`);
+  addLog('metric', 'CLevel_Reporter', `DLP Leaks Prevenidos: ${metrics.leaks}`);
+  addLog('metric', 'CLevel_Reporter', `ROI vs. Assinatura: ${metrics.roi.toLocaleString('pt-BR')}%`);
+  addLog('metric', 'CLevel_Reporter', '════════════════════════════════════════════');
+  addLog('system', null, '🏆 DEMONSTRAÇÃO COMPLETA. SISTEMA AXEGUARD OPERACIONAL.');
+
+  btnFull.classList.remove('running');
+}
+
+// ── AUTOPLAY TOGGLE ──
+document.getElementById('autoplayCheck').addEventListener('change', (e) => {
+  autoPlayEnabled = e.target.checked;
+});
+
+// ── TRY SSE CONNECTION (optional, for when backend is running) ──
+function trySSE() {
+  try {
+    const es = new EventSource('/api/v1/soc/stream');
+    es.onopen = () => {
+      document.getElementById('sseStatus').className = 'status-dot';
+      document.getElementById('sseLabel').textContent = 'SSE LIVE';
+    };
+    es.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        addLog(data.type || 'system', data.agent, data.message || e.data);
+      } catch { addLog('system', null, e.data); }
+    };
+    es.onerror = () => {
+      es.close();
+      document.getElementById('sseStatus').className = 'status-dot warn';
+      document.getElementById('sseLabel').textContent = 'STANDALONE';
+    };
+  } catch {
+    // Standalone mode — no backend needed
+  }
+}
+trySSE();
+</script>
+</body>
+</html>

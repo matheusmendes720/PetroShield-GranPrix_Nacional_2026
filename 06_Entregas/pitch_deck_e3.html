@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetroShield | E3 Pitch Deck</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --brand-green: #00FF41;
+            --brand-green-glow: rgba(0, 255, 65, 0.4);
+            --brand-orange: #FF6200;
+            --text-primary: #F0F0F0;
+            --text-muted: #888888;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(255, 98, 0, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(0, 255, 65, 0.05), transparent 25%);
+        }
+
+        /* Glitch overlay line */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        #presentation-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 5rem 8rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(20px) scale(0.98);
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Typography */
+        .cyber-title {
+            font-family: 'VT323', monospace;
+            font-size: 5rem;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .cyber-title.green { color: var(--brand-green); text-shadow: 0 0 20px var(--brand-green-glow); }
+        .cyber-title.orange { color: var(--brand-orange); text-shadow: 0 0 20px rgba(255, 98, 0, 0.4); }
+
+        .slide-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            font-weight: 300;
+            max-width: 800px;
+            line-height: 1.5;
+            margin-bottom: 3rem;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .metric-card {
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 8px;
+            border-top: 3px solid var(--brand-green);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 65, 0.1);
+        }
+
+        .metric-value {
+            font-family: 'VT323', monospace;
+            font-size: 3.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Special Slide Elements */
+        .alarm-slide {
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.15) 0%, var(--bg-color) 70%);
+        }
+
+        .alarm-text {
+            color: #FF2A2A;
+            text-shadow: 0 0 40px rgba(255, 42, 42, 0.8);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .diagram-box {
+            width: 100%;
+            height: 300px;
+            border: 1px dashed var(--brand-green);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 255, 65, 0.02);
+            color: var(--brand-green);
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            margin-top: 2rem;
+        }
+
+        .diagram-box span {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Controls Indicator */
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 3rem;
+            font-family: 'VT323', monospace;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            z-index: 100;
+            opacity: 0.5;
+        }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: var(--brand-green);
+            transition: width 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 0 10px var(--brand-green);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="presentation-container">
+        
+        <!-- Slide 1: Hook -->
+        <div class="slide active alarm-slide">
+            <h2 class="cyber-title alarm-text">VAZAMENTO DETECTADO</h2>
+            <p class="slide-subtitle" style="font-size: 2rem; color: #f0f0f0;">Novembro 2025: 90 Gigabytes de dados sísmicos roubados.</p>
+            <p class="slide-subtitle">O vetor? Um dispositivo wearable de parceiro logístico sem validação granular de contexto. A inovação industrial não deve ser a porta dos fundos para Ransomwares.</p>
+            <div style="font-family: 'VT323'; color: #FF2A2A; font-size: 2rem; margin-top: 2rem;">
+                > IMPACTO C-LEVEL ESTIMADO: R$ 110.000.000,00_
+            </div>
+        </div>
+
+        <!-- Slide 2: Problema O&G -->
+        <div class="slide">
+            <h2 class="cyber-title orange">A Superfície de Ataque O&G</h2>
+            <p class="slide-subtitle">Em ambientes de FPSOs e Refinarias conectadas, a adoção de IAs e Realidade Mista expõe protocolos SCADA legados e triplica as vias de extração de dados através de 10.000+ fornecedores.</p>
+            
+            <div class="metric-grid">
+                <div class="metric-card" style="border-top-color: var(--brand-orange)">
+                    <div class="metric-value">10k+</div>
+                    <div class="metric-label">Vendors Integrados</div>
+                </div>
+                <div class="metric-card" style="border-top-color: var(--brand-orange)">
+                    <div class="metric-value">3x</div>
+                    <div class="metric-label">Aumento na Superfície VR/AR</div>
+                </div>
+                <div class="metric-card" style="border-top-color: #FF2A2A">
+                    <div class="metric-value">Dias</div>
+                    <div class="metric-label">Tempo Médio de SOC Humano</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Arquitetura AxeGuard -->
+        <div class="slide">
+            <h2 class="cyber-title green">AxeGuard Middleware</h2>
+            <p class="slide-subtitle">Um Security Operations Center Agêntico (AI-SOC) que reside na "Borda" (Edge) das fábricas. Interceptação instantânea no fluxo de dados antes que alcancem nvens públicas.</p>
+            
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-value">0-Trust</div>
+                    <div class="metric-label">OAuth 2.0 Device Flow Auth</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">DLP</div>
+                    <div class="metric-label">Mascaramento Bi-Direcional</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">< 50ms</div>
+                    <div class="metric-label">Interceptação Modbus/SCADA</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Visual Hyperscaling -->
+        <div class="slide">
+            <h2 class="cyber-title green">O Efeito Multi-Tenant</h2>
+            <p class="slide-subtitle">Quando o AxeGuard detecta e neutraliza uma mutação de Ransomware em um polo logístico, a IA sintética ("arquitetos") forja uma vacina digital em segundos.</p>
+            
+            <div class="diagram-box">
+                [ Camaçari Shield ] ─── Imunização Preditiva Global ───> [ 100+ Plataformas Offshore ]<span>_</span>
+            </div>
+            
+            <p class="slide-subtitle" style="margin-top: 2rem; text-align: center; font-style: italic; color: var(--brand-green);">
+                "Um ataque mitigado na Bacia de Campos imuniza instaneamente toda operação em Santos."
+            </p>
+        </div>
+
+        <!-- Slide 5: Business Impact -->
+        <div class="slide">
+            <h2 class="cyber-title orange">Métricas C-Level & Compliance</h2>
+            <p class="slide-subtitle">Não atuamos apenas na defesa cibernética, atuamos na proteção do Capex e Opex. Um investimento "Enterprise SaaS" invisível e ultra-econômico.</p>
+            
+            <div class="metric-grid">
+                <div class="metric-card" style="border-top-color: white">
+                    <div class="metric-value">US$ 25M</div>
+                    <div class="metric-label">Economia por Prevenção de Breach</div>
+                </div>
+                <div class="metric-card" style="border-top-color: white">
+                    <div class="metric-value">100%</div>
+                    <div class="metric-label">Automação de Relatórios ANPD / LGPD</div>
+                </div>
+                <div class="metric-card" style="border-top-color: white">
+                    <div class="metric-value">SaaS</div>
+                    <div class="metric-label">Escala Corporativa Multi-Tier</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Encerramento -->
+        <div class="slide" style="text-align: center; align-items: center;">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='100' viewBox='0 0 24 24' fill='none' stroke='%2300FF41' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>" style="margin-bottom: 2rem; filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.6));">
+            <h2 class="cyber-title green" style="font-size: 6rem;">PETROSHIELD</h2>
+            <p class="slide-subtitle" style="font-size: 2rem; color: #fff; margin-bottom: 1rem;">AxeGuard AI-SOC</p>
+            <p class="slide-subtitle" style="font-family: 'VT323', monospace;">"Proteger as infraestruturas de hoje com a IA do amanhã é mais do que segurança. É soberania."</p>
+        </div>
+
+    </div>
+
+    <!-- Interface Chrome -->
+    <div class="controls">[←] [→] Navigate</div>
+    <div class="progress-bar" id="progress-bar"></div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progress-bar');
+        let currentSlide = 0;
+
+        function updateSlides() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+            
+            // Update progress bar
+            const progress = ((currentSlide) / (slides.length - 1)) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                if (currentSlide < slides.length - 1) {
+                    currentSlide++;
+                    updateSlides();
+                }
+            } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+                if (currentSlide > 0) {
+                    currentSlide--;
+                    updateSlides();
+                }
+            }
+        });
+
+        // Initialize progress bar
+        updateSlides();
+    </script>
+</body>
+</html>

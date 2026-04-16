@@ -1,0 +1,16 @@
+# PetroShield Agentic SOC — Dependências Mínimas
+# ================================================
+# Stack mínima para execução do motor de orquestração.
+# Apenas 4 bibliotecas externas:
+#   - pydantic: Validação de schemas (já presente no projeto)
+#   - rich: TUI cyberpunk (já presente no projeto)
+#   - openai: Chamadas LLM (OPCIONAL — modo mock funciona sem ela)
+#   - httpx: Cliente HTTP assíncrono (dependência do openai)
+
+pydantic>=2.0
+rich>=13.0
+textual>=0.70.0
+
+# OPCIONAL: descomente para modo --live (chamadas reais à OpenAI)
+# openai>=1.30
+# httpx>=0.27

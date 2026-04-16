@@ -1,292 +1,630 @@
 """
-PetroShield Demo TUI — Animated terminal dashboard for live hackathon demo.
-Requires: rich
+PetroShield Demo TUI v2.5 — Textual-based Interactive Dashboard
+================================================================
+3 tabs:
+  1. Dashboard   — Live metrics, torch animation, agentic loop, event stream,
+                   Triple Surface Attack Vector cards, compliance heartbeat
+  2. Operations  — Agentic Playbooks table, interactive workflow runner,
+                   state inspector, daily routines execution
+  3. Analytics   — ASCII data viz, KPIs/OKRs, financial charts, fleet health,
+                   Triple Surface breakdown, vendor value-at-risk
+
+Usage:
+  cd <project_root>
+  python -m scripts.dlp_proxy.demo_ui
+
+Dependencies:
+  textual>=0.70
 """
 
+import json
 import time
 import sys
-from rich.console import Console
-from rich.panel import Panel
-from rich.layout import Layout
-from rich.live import Live
+import os
+from typing import List, Dict, Any
+
+# Ensure project root is importable
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+
+from textual.app import App, ComposeResult
+from textual.containers import Container, Horizontal, Vertical, Grid
+from textual.widgets import (
+    Header, Footer, Static, Button, DataTable, RichLog,
+    TabbedContent, TabPane, ProgressBar, Label, Rule,
+)
+from textual.reactive import reactive
+from textual._work_decorator import work
+from textual.message import Message
+from textual.color import Color
+
+from rich import box
 from rich.text import Text
-from rich.table import Table
+from rich.panel import Panel
+from rich.table import Table as RichTable
+from rich.json import JSON
 
-console = Console()
+# PetroShield imports
+from scripts.agentic_soc.theatre import TheatreEngine
+from scripts.agentic_soc.mock_data import (
+    XR_DEVICES, VENDOR_RISK_DB, FLEET_REGISTRY,
+    MONTHLY_METRICS, OKRS, generate_historical_audit_entries,
+    get_cumulative_cost_avoided, get_vendor_risk_distribution, get_fleet_health,
+    AGENTIC_WORKFLOWS, COMPLIANCE_LEDGER_ENTRIES, INCIDENT_KB,
+    TRIPLE_SURFACE_METRICS, get_compliance_summary,
+    get_vendor_contract_value_at_risk, get_triple_surface_breakdown,
+)
 
-# Neon green + fire orange palette
+# ---------------------------------------------------------------------------
+# PetroShield Palette
+# ---------------------------------------------------------------------------
 GREEN = "#00FF41"
 ORANGE = "#FF6200"
-AMBER = "#FF9500"
 CYAN = "#00FFFF"
+AMBER = "#FF9500"
+RED = "#FF3333"
+BLACK = "#0A0A0A"
+PURPLE = "#BF00FF"
+
+
+# ---------------------------------------------------------------------------
+# Helpers: ASCII Charts & Sparklines
+# ---------------------------------------------------------------------------
+
+def ascii_bar_chart(title: str, data: Dict[str, float], width: int = 40, unit: str = "") -> Text:
+    """Build a simple horizontal ASCII bar chart as Rich Text."""
+    lines = Text()
+    max_val = max(data.values()) if data else 1
+    lines.append(f"{title}\n", style=f"bold {CYAN}")
+    for label, value in data.items():
+        bar_len = int((value / max_val) * width)
+        bar = "█" * bar_len
+        color = GREEN if value < max_val * 0.5 else (AMBER if value < max_val * 0.8 else ORANGE)
+        lines.append(f"{label:22} ", style="dim")
+        lines.append(f"{bar}", style=color)
+        lines.append(f" {value:,.0f}{unit}\n", style="white")
+    return lines
+
+
+def ascii_sparkline(values: List[float], width: int = 50) -> Text:
+    """Build an ASCII sparkline."""
+    blocks = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
+    if not values:
+        return Text("No data")
+    min_v, max_v = min(values), max(values)
+    if max_v == min_v:
+        return Text("█" * min(width, len(values)), style=GREEN)
+    line = Text()
+    for v in values[:width]:
+        idx = int(((v - min_v) / (max_v - min_v)) * (len(blocks) - 1))
+        line.append(blocks[idx], style=GREEN if v < (max_v * 0.6) else ORANGE)
+    return line
+
+
+def metric_card(title: str, value: str, delta: str = "", color: str = GREEN) -> Panel:
+    """Rich Panel styled as a metric card."""
+    text = Text()
+    text.append(f"{value}\n", style=f"bold {color}")
+    text.append(title, style="dim white")
+    if delta:
+        text.append(f"\n{delta}", style=f"dim {color}")
+    return Panel(text, border_style=color, box=box.ROUNDED)
+
+
+def mini_stat(label: str, value: str, color: str = CYAN) -> Text:
+    t = Text()
+    t.append(f"{value}", style=f"bold {color}")
+    t.append(f" {label}", style="dim")
+    return t
+
+
+# ---------------------------------------------------------------------------
+# Torch Animation Widget
+# ---------------------------------------------------------------------------
 
 TORCH_FRAMES = [
-    """
-       🔥
-      /|
-     / |
-    /  |
-   |   |
-   |   |
-   |___|
-    """,
-    """
-      🔥🔥
-      /|
-     / |
-    /  |
-   |   |
-   |   |
-   |___|
-    """,
-    """
-     🔥🔥🔥
-      /|
-     / |
-    /  |
-   |   |
-   |   |
-   |___|
-    """,
-    """
-    🔥🔥🔥🔥
-      /|
-     / |
-    /  |
-   |   |
-   |   |
-   |___|
-    """,
+    "  🔥\n  |\n  |\n [|]",
+    " 🔥🔥\n  |\n  |\n [|]",
+    "🔥🔥🔥\n  |\n  |\n [|]",
+    "🔥🔥🔥🔥\n  |\n  |\n [|]",
 ]
 
-METRICS = {
-    "active_sessions": 14,
-    "leaks_prevented": 0,
-    "avg_latency_ms": 0,
-    "critical_alerts": 0,
-}
 
-AGENTIC_LOOP = {
-    "phases": ["MONITOR", "DETECT", "ANALYSE", "RESPOND", "HUNT", "LESSONS"],
-    "current": -1,
-    "completed": [],
-    "confidence": 0.0,
-}
+class Torch(Static):
+    """Animated ASCII torch."""
 
-EVENT_LOG = []
+    frame_index = reactive(0)
 
-def make_header() -> Panel:
-    title = Text("🔥 PETROSHIELD TERMINAL v2047", style=f"bold {GREEN}")
-    subtitle = Text("  •  Protegendo o Ouro Negro", style=ORANGE)
-    header_text = Text.assemble(title, subtitle)
-    return Panel(header_text, style=f"bold {GREEN}")
+    def on_mount(self) -> None:
+        self.set_interval(0.3, self.advance_frame)
 
-def make_metrics() -> Panel:
-    table = Table(show_header=False, box=None)
-    table.add_column("Metric", style=GREEN)
-    table.add_column("Value", style=ORANGE, justify="right")
-    table.add_row("Active Sessions", str(METRICS["active_sessions"]))
-    table.add_row("Leaks Prevented", str(METRICS["leaks_prevented"]))
-    table.add_row("Avg Latency", f"{METRICS['avg_latency_ms']}ms")
-    table.add_row("Critical Alerts", str(METRICS["critical_alerts"]))
-    return Panel(table, title="[bold green]Metrics", border_style=GREEN)
+    def advance_frame(self) -> None:
+        self.frame_index = (self.frame_index + 1) % len(TORCH_FRAMES)
+        self.update(Panel(
+            Text(TORCH_FRAMES[self.frame_index], justify="center", style=ORANGE),
+            title="[bold]PetroShield[/]",
+            border_style=ORANGE,
+            box=box.ROUNDED,
+        ))
 
-def make_torch(frame_idx: int) -> Panel:
-    torch = Text(TORCH_FRAMES[frame_idx % len(TORCH_FRAMES)], style=ORANGE)
-    return Panel(torch, title="[bold orange]PetroShield", border_style=ORANGE)
 
-def make_agentic_loop() -> Panel:
-    lines = []
-    for phase in AGENTIC_LOOP["phases"]:
-        if phase == AGENTIC_LOOP.get("active"):
-            bar = "▓▓▓▓▓▓▓▓▓▓"
-            lines.append(f"[{GREEN}][{phase}]{bar} ← ACTIVE (confidence: {AGENTIC_LOOP['confidence']})[/]")
-        elif phase in AGENTIC_LOOP["completed"]:
-            bar = "▓▓▓▓▓▓▓▓▓▓"
-            lines.append(f"[dim green][{phase}]{bar} ✓[/]")
+# ---------------------------------------------------------------------------
+# Messages for cross-thread updates
+# ---------------------------------------------------------------------------
+
+class NodeTransition(Message):
+    """Posted when the Theatre engine transitions between graph nodes."""
+    def __init__(self, node_name: str, state: dict) -> None:
+        self.node_name = node_name
+        self.state = state
+        super().__init__()
+
+
+class WorkflowComplete(Message):
+    """Posted when a workflow run finishes execution."""
+    def __init__(self, result: dict) -> None:
+        self.result = result
+        super().__init__()
+
+
+# ---------------------------------------------------------------------------
+# Tab 1: Dashboard Content
+# ---------------------------------------------------------------------------
+
+class DashboardContent(Container):
+    """Central live dashboard with metrics, torch, loop, event stream, Triple Surface."""
+
+    def compose(self) -> ComposeResult:
+        # Top row: Torch + 6 metrics
+        with Horizontal(id="dash-top"):
+            yield Torch(id="dash-torch")
+            yield Static(id="metric-1")
+            yield Static(id="metric-2")
+            yield Static(id="metric-3")
+            yield Static(id="metric-4")
+            yield Static(id="metric-5")
+            yield Static(id="metric-6")
+
+        with Horizontal(id="dash-mid"):
+            # Agentic Loop
+            with Vertical(id="agentic-loop-panel"):
+                yield Label("[b cyan]Agentic Loop[/b cyan]")
+                yield Static(id="agentic-loop")
+
+            # Triple Surface Attack Vector
+            with Vertical(id="triple-surface-panel"):
+                yield Label("[b orange]Triple Surface Attack Vector[/b orange]")
+                yield Static(id="triple-surface")
+
+        # Compliance heartbeat + vendor spotlight
+        with Horizontal(id="dash-sub"):
+            with Vertical(id="compliance-panel"):
+                yield Label("[b green]Compliance Heartbeat[/b green]")
+                yield Static(id="compliance-stats")
+            with Vertical(id="vendor-spotlight-panel"):
+                yield Label("[b red]Vendor Spotlight[/b red]")
+                yield Static(id="vendor-spotlight")
+
+        # Bottom: Live Event Stream
+        with Vertical(id="event-stream-panel"):
+            yield Label("[b green]Live Event Stream — Agentic Daily Routines[/b green]")
+            yield RichLog(id="event-log", highlight=True, markup=True)
+
+    def on_mount(self) -> None:
+        self.update_metrics()
+        self.update_agentic_loop()
+        self.update_triple_surface()
+        self.update_compliance()
+        self.update_vendor_spotlight()
+        self.start_event_stream()
+
+    def update_metrics(self) -> None:
+        latest = MONTHLY_METRICS[-1]
+        cumulative_cost = get_cumulative_cost_avoided()
+        fleet = get_fleet_health()
+        compliance = get_compliance_summary()
+
+        cards = [
+            ("metric-1", "Active Sessions", str(len([d for d in XR_DEVICES.values() if d["mdm_enrollment_status"] != "compromised"])), "Zero Trust Auth", GREEN),
+            ("metric-2", "Leaks Prevented (MoM)", str(latest["leaks_prevented"]), "+12% vs last month", GREEN),
+            ("metric-3", "Biometric Re-Auths", str(latest["biometric_reauths"]), "Gaze liveness verified", CYAN),
+            ("metric-4", "Shadow IT Blocks", str(latest["shadow_it_blocks"]), "Tunnels isolated", RED),
+            ("metric-5", "Cost Avoided YTD", f"R$ {cumulative_cost/1_000_000:.2f}M", "ROI > 1200%", AMBER),
+            ("metric-6", "Fleet Coverage", f"{fleet['coverage_pct']}%", f"{fleet['online']}/{fleet['total_nodes']} nodes online", GREEN),
+        ]
+        for widget_id, title, value, delta, color in cards:
+            self.query_one(f"#{widget_id}", Static).update(metric_card(title, value, delta, color))
+
+    def update_agentic_loop(self) -> None:
+        phases = ["MONITOR", "DETECT", "ANALYSE", "RESPOND", "HUNT", "LESSONS"]
+        lines = Text()
+        for phase in phases:
+            lines.append("✓ ", style=GREEN)
+            lines.append(f"{phase}  ", style=CYAN)
+        self.query_one("#agentic-loop", Static).update(Panel(lines, border_style=CYAN, box=box.ROUNDED))
+
+    def update_triple_surface(self) -> None:
+        ts = TRIPLE_SURFACE_METRICS
+        text = Text()
+        text.append("Triple Surface Blocks (30d)\n", style=f"bold {ORANGE}")
+        for key, data in ts.items():
+            label = data["label"].split("(")[0].strip()
+            count = data["blocks_30d"]
+            alerts = data["active_alerts"]
+            color = GREEN if alerts < 3 else (AMBER if alerts < 5 else RED)
+            text.append(f"{label:28} ", style="dim")
+            text.append(f"{count:3} blocks", style=color)
+            text.append(f"  ({alerts} alert{'s' if alerts!=1 else ''})\n", style="dim")
+        self.query_one("#triple-surface", Static).update(Panel(text, border_style=ORANGE, box=box.ROUNDED))
+
+    def update_compliance(self) -> None:
+        summary = get_compliance_summary()
+        text = Text()
+        text.append("ANPD / LGPD Status\n", style=f"bold {GREEN}")
+        text.append(f"Total Items: {summary['total_entries']}\n", style="white")
+        text.append(f"Pending:     {summary['pending_notifications']}\n", style=AMBER if summary['pending_notifications'] else GREEN)
+        text.append(f"Overdue:     {summary['overdue']}\n", style=RED if summary['overdue'] else GREEN)
+        text.append(f"Compliance:  {summary['compliance_rate_pct']}%\n", style=GREEN)
+        self.query_one("#compliance-stats", Static).update(Panel(text, border_style=GREEN, box=box.ROUNDED))
+
+    def update_vendor_spotlight(self) -> None:
+        critical = [(vid, v) for vid, v in VENDOR_RISK_DB.items() if v["risk_level"] == "CRITICAL"]
+        text = Text()
+        text.append("Critical Vendors\n", style=f"bold {RED}")
+        for vid, v in critical:
+            text.append(f"{v['vendor_name']}\n", style=AMBER)
+            text.append(f"  Score: {int(v['risk_score'])} | Contract: R$ {v['contract_value_brl']/1_000_000_000:.2f}B\n", style="dim")
+        if not critical:
+            text.append("No critical vendors right now.", style=GREEN)
+        var = get_vendor_contract_value_at_risk()
+        text.append(f"\nValue at Risk (HIGH+): R$ {var/1_000_000_000:.2f}B", style=RED)
+        self.query_one("#vendor-spotlight", Static).update(Panel(text, border_style=RED, box=box.ROUNDED))
+
+    def start_event_stream(self) -> None:
+        log = self.query_one("#event-log", RichLog)
+        log.write("[dim]Initializing PetroShield Event Stream...[/dim]")
+        self._event_index = 0
+        self._events = generate_historical_audit_entries(30)
+        self.set_interval(1.0, self._push_next_event)
+
+    def _push_next_event(self) -> None:
+        log = self.query_one("#event-log", RichLog)
+        if self._event_index < len(self._events):
+            e = self._events[self._event_index]
+            color = GREEN if e["operator_action"] == "allowed" else (AMBER if e["operator_action"] == "escalated" else RED)
+            wf = AGENTIC_WORKFLOWS[self._event_index % len(AGENTIC_WORKFLOWS)]
+            log.write(
+                f"[{color}]{e['operator_action'].upper()}[/] | "
+                f"[cyan]{wf['workflow_name'].split(' ')[0]} {wf['workflow_name'].split(' ')[1] if len(wf['workflow_name'].split(' ')) > 1 else ''}[/] | "
+                f"{e['device_id']} | "
+                f"score={e['threat_score']} | "
+                f"lat={e['latency_ms']}ms"
+            )
+            self._event_index += 1
         else:
-            bar = "░░░░░░░░░░"
-            lines.append(f"[dim][{phase}]{bar}[/]")
-    content = Text("\n".join(lines))
-    return Panel(content, title="[bold cyan]Agentic Loop", border_style=CYAN)
+            self._event_index = 0
 
-def make_event_log() -> Panel:
-    lines = EVENT_LOG[-8:] if len(EVENT_LOG) > 8 else EVENT_LOG
-    content = Text("\n".join(lines) if lines else "Waiting for events...", style=GREEN)
-    return Panel(content, title="[bold green]Event Stream", border_style=GREEN)
 
-def make_layout(frame_idx: int) -> Layout:
-    layout = Layout()
-    layout.split_column(
-        Layout(make_header(), size=3),
-        Layout(name="main"),
-    )
-    layout["main"].split_row(
-        Layout(name="left"),
-        Layout(name="center"),
-        Layout(name="right"),
-    )
-    layout["left"].split_column(
-        Layout(make_metrics(), size=12),
-        Layout(make_event_log()),
-    )
-    layout["center"].update(make_torch(frame_idx))
-    layout["right"].update(make_agentic_loop())
-    return layout
+# ---------------------------------------------------------------------------
+# Tab 2: Operations Content (Agentic Playbooks)
+# ---------------------------------------------------------------------------
 
-def log_event(msg: str, color: str = GREEN):
-    EVENT_LOG.append(f"[{time.strftime('%H:%M:%S')}] {msg}")
-    if len(EVENT_LOG) > 50:
-        EVENT_LOG.pop(0)
+class OperationsContent(Container):
+    """Interactive agentic workflow runner with playbook table and state inspector."""
 
-def run_demo_sequence(live: Live):
-    """Simulate the 4 demo scenes with animations."""
-    # Scene 0: Idle
-    time.sleep(1)
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.selected_workflow_id: str = AGENTIC_WORKFLOWS[0]["workflow_id"]
+        self.engine = TheatreEngine(quiet=True)
+        self._running_all: bool = False
 
-    # Scene 1: Unauthorized access
-    log_event("Device quest-vr-001 → /secure-prompt", AMBER)
-    AGENTIC_LOOP["active"] = "MONITOR"
-    live.update(make_layout(0))
-    time.sleep(0.8)
+    def compose(self) -> ComposeResult:
+        with Horizontal(id="ops-layout"):
+            # Left: playbook list
+            with Vertical(id="playbook-list-panel"):
+                yield Label("[b cyan]Agentic Playbooks — Daily SOC Routines[/b cyan]")
+                yield DataTable(id="playbook-table", cursor_type="row")
+                yield Button("▶ Run Selected Playbook", id="run-wf-btn", variant="primary")
+                yield Button("▶▶ Run All Playbooks", id="run-all-wf-btn", variant="success")
+                yield Static(id="playbook-desc")
 
-    log_event("Threat T1078 detected — Missing auth", ORANGE)
-    AGENTIC_LOOP["completed"] = ["MONITOR"]
-    AGENTIC_LOOP["active"] = "DETECT"
-    live.update(make_layout(1))
-    time.sleep(0.8)
+            # Right: output
+            with Vertical(id="ops-output-panel"):
+                yield Label("[b green]Execution Trace & Narrative[/b green]")
+                yield RichLog(id="ops-log", highlight=True, markup=True, max_lines=200)
+                yield Label("[b cyan]Outcome Inspector[/b cyan]")
+                yield Static(id="outcome-inspector")
 
-    log_event("Risk Score: 94/100 — BLOCKED", ORANGE)
-    AGENTIC_LOOP["completed"] = ["MONITOR", "DETECT"]
-    AGENTIC_LOOP["active"] = "RESPOND"
-    AGENTIC_LOOP["confidence"] = 0.94
-    METRICS["critical_alerts"] += 1
-    live.update(make_layout(2))
-    time.sleep(0.8)
+    def on_mount(self) -> None:
+        table = self.query_one("#playbook-table", DataTable)
+        table.add_columns("Playbook", "Type", "Frequency", "MITRE", "Expected")
+        for w in AGENTIC_WORKFLOWS:
+            mitre = w.get("expected_mitre") or "—"
+            table.add_row(
+                w["workflow_name"],
+                w["workflow_type"],
+                w["daily_frequency"],
+                mitre,
+                w["expected_action"],
+                key=w["workflow_id"],
+            )
+        table.cursor_coordinate = (0, 0)
+        self.selected_workflow_id = AGENTIC_WORKFLOWS[0]["workflow_id"]
+        self._update_desc()
+        self.query_one("#outcome-inspector", Static).update(
+            Panel("Select a playbook and press Run.", border_style=CYAN, box=box.ROUNDED)
+        )
 
-    AGENTIC_LOOP["completed"] = ["MONITOR", "DETECT", "RESPOND", "HUNT", "LESSONS"]
-    AGENTIC_LOOP["active"] = None
-    live.update(make_layout(3))
-    time.sleep(1.5)
+    def _update_desc(self) -> None:
+        wf = next(w for w in AGENTIC_WORKFLOWS if w["workflow_id"] == self.selected_workflow_id)
+        text = Text()
+        text.append(f"{wf['workflow_name']}\n", style=f"bold {CYAN}")
+        text.append(f"{wf['description']}\n\n", style="white")
+        text.append("Business Value: ", style="dim")
+        text.append(wf["business_value"], style=GREEN)
+        self.query_one("#playbook-desc", Static).update(Panel(text, border_style=CYAN, box=box.ROUNDED))
 
-    # Reset for Scene 2
-    AGENTIC_LOOP["completed"] = []
-    AGENTIC_LOOP["confidence"] = 0.0
+    def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
+        self.selected_workflow_id = str(event.row_key.value)
+        self._update_desc()
 
-    # Scene 2: DLP redaction
-    log_event("hololens-047 → authenticated query", GREEN)
-    AGENTIC_LOOP["active"] = "MONITOR"
-    live.update(make_layout(4))
-    time.sleep(0.6)
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "run-wf-btn":
+            self.run_workflow(self.selected_workflow_id)
+        elif event.button.id == "run-all-wf-btn":
+            self.run_all_workflows()
 
-    log_event("Entities: platform P-93, well alfa-bravo, password", AMBER)
-    AGENTIC_LOOP["completed"] = ["MONITOR"]
-    AGENTIC_LOOP["active"] = "DETECT"
-    live.update(make_layout(5))
-    time.sleep(0.6)
+    def run_workflow(self, workflow_id: str) -> None:
+        log = self.query_one("#ops-log", RichLog)
+        log.clear()
+        wf = next(w for w in AGENTIC_WORKFLOWS if w["workflow_id"] == workflow_id)
+        log.write(f"[orange]Initiating {wf['workflow_name']}...[/orange]")
+        self.query_one("#run-wf-btn", Button).disabled = True
+        self.query_one("#run-all-wf-btn", Button).disabled = True
+        self.run_workflow_worker(workflow_id)
 
-    log_event("Redacting P-93 → [ATIVO_RESTRITO]", GREEN)
-    log_event("Redacting senha → [CREDENCIAL_BLOQUEADA]", GREEN)
-    AGENTIC_LOOP["completed"] = ["MONITOR", "DETECT"]
-    AGENTIC_LOOP["active"] = "RESPOND"
-    AGENTIC_LOOP["confidence"] = 0.35
-    METRICS["leaks_prevented"] += 3
-    METRICS["avg_latency_ms"] = 47
-    live.update(make_layout(6))
-    time.sleep(1.2)
+    def run_all_workflows(self) -> None:
+        log = self.query_one("#ops-log", RichLog)
+        log.clear()
+        log.write("[orange]Running full daily SOC routine suite...[/orange]")
+        self.query_one("#run-wf-btn", Button).disabled = True
+        self.query_one("#run-all-wf-btn", Button).disabled = True
+        self._running_all = True
+        self.run_all_worker()
 
-    AGENTIC_LOOP["completed"] = ["MONITOR", "DETECT", "RESPOND", "HUNT", "LESSONS"]
-    AGENTIC_LOOP["active"] = None
-    live.update(make_layout(7))
-    time.sleep(1.5)
+    @work(exclusive=True, thread=True)
+    def run_workflow_worker(self, workflow_id: str) -> None:
+        def node_cb(node_name: str, state: dict):
+            self.post_message(NodeTransition(node_name, dict(state)))
+        # Map workflow_id to corresponding scene_id (they share IDs now)
+        result = self.engine.run_scene(workflow_id, node_callback=node_cb)
+        self.post_message(WorkflowComplete(result))
 
-    # Reset for Scene 3
-    AGENTIC_LOOP["completed"] = []
+    @work(exclusive=True, thread=True)
+    def run_all_worker(self) -> None:
+        for w in AGENTIC_WORKFLOWS:
+            self.post_message(NodeTransition("PLAYBOOK_START", {"workflow_id": w["workflow_id"], "title": w["workflow_name"]}))
+            result = self.engine.run_scene(w["workflow_id"])
+            self.post_message(WorkflowComplete(result))
+        self.post_message(WorkflowComplete({"all_done": True}))
 
-    # Scene 3: OT Protocol block
-    log_event("hololens-047 → 'Modbus FC16 no controlador'", ORANGE)
-    AGENTIC_LOOP["active"] = "MONITOR"
-    live.update(make_layout(8))
-    time.sleep(0.6)
+    def on_node_transition(self, event: NodeTransition) -> None:
+        log = self.query_one("#ops-log", RichLog)
+        if event.node_name == "PLAYBOOK_START":
+            log.write(f"\n[b cyan]══ {event.state.get('workflow_id')} ══[/b cyan] {event.state.get('title', '')}")
+        else:
+            log.write(f"  [dim]→[/dim] [cyan]{event.node_name}[/cyan]")
 
-    log_event("⚠️  OT PROTOCOL DETECTED: Modbus FC16", f"bold {ORANGE}")
-    AGENTIC_LOOP["completed"] = ["MONITOR"]
-    AGENTIC_LOOP["active"] = "DETECT"
-    live.update(make_layout(9))
-    time.sleep(0.6)
+    def on_workflow_complete(self, event: WorkflowComplete) -> None:
+        log = self.query_one("#ops-log", RichLog)
+        if event.result.get("all_done"):
+            log.write("\n[green bold]All playbooks completed.[/green bold]")
+            self._running_all = False
+            self.query_one("#run-wf-btn", Button).disabled = False
+            self.query_one("#run-all-wf-btn", Button).disabled = False
+            return
 
-    log_event("CRITICAL RISK — Threat Score: 0.98", f"bold {ORANGE}")
-    AGENTIC_LOOP["completed"] = ["MONITOR", "DETECT"]
-    AGENTIC_LOOP["active"] = "RESPOND"
-    AGENTIC_LOOP["confidence"] = 0.98
-    METRICS["critical_alerts"] += 1
-    METRICS["leaks_prevented"] += 1
-    live.update(make_layout(10))
-    time.sleep(1.0)
+        final = event.result.get("final_state", {})
+        scene_id = event.result.get("scene_id", "N/A")
+        wf = next((w for w in AGENTIC_WORKFLOWS if w["workflow_id"] == scene_id), None)
 
-    log_event("BLOCKED + ESCALATED TO SOC", f"bold {ORANGE}")
-    AGENTIC_LOOP["completed"] = ["MONITOR", "DETECT", "RESPOND", "HUNT", "LESSONS"]
-    AGENTIC_LOOP["active"] = None
-    live.update(make_layout(11))
-    time.sleep(1.5)
+        log.write(
+            f"\n[green]Outcome:[/green] action=[b]{final.get('dlp_action', 'N/A')}[/b] | "
+            f"threat=[b]{final.get('dlp_threat_score', 0)}[/b] | "
+            f"entities=[b]{len(final.get('dlp_entities', []))}[/b]"
+        )
 
-    # Reset for Scene 4
-    AGENTIC_LOOP["completed"] = []
+        # Update inspector
+        inspector = self.query_one("#outcome-inspector", Static)
+        financial = final.get("financial", {})
+        summary_text = Text()
+        if wf:
+            summary_text.append(f"Playbook: {wf['workflow_name']}\n", style=f"bold {CYAN}")
+            summary_text.append(f"Type: {wf['workflow_type']} | Freq: {wf['daily_frequency']}\n", style="dim")
+        summary_text.append(f"Action: {final.get('dlp_action', 'N/A')}\n", style="white")
+        summary_text.append(f"Threat Score: {final.get('dlp_threat_score', 0)}\n", style="white")
+        summary_text.append(f"Redactions: {len(final.get('dlp_entities', []))}\n", style="white")
+        if financial:
+            summary_text.append(f"Downtime Avoided: {financial.get('downtime_hours_avoided', 0)}h\n", style=GREEN)
+            summary_text.append(f"Cost Avoided: R$ {financial.get('downtime_cost_avoided_brl', 0):,.2f}\n", style=AMBER)
+            summary_text.append(f"ROI: {financial.get('roi_percentage', 0)}%\n", style=GREEN)
+        inspector.update(Panel(summary_text, border_style=CYAN, box=box.ROUNDED))
 
-    # Scene 4: Vendor risk cascade
-    log_event("Dark web alert: Oceânica Engenharia", ORANGE)
-    AGENTIC_LOOP["active"] = "MONITOR"
-    live.update(make_layout(12))
-    time.sleep(0.8)
+        if not self._running_all:
+            self.query_one("#run-wf-btn", Button).disabled = False
+            self.query_one("#run-all-wf-btn", Button).disabled = False
 
-    log_event("Vendor risk: 62 → 89 (CRITICAL)", ORANGE)
-    AGENTIC_LOOP["completed"] = ["MONITOR"]
-    AGENTIC_LOOP["active"] = "DETECT"
-    live.update(make_layout(13))
-    time.sleep(0.8)
 
-    log_event("Suspending 12 XR sessions...", ORANGE)
-    AGENTIC_LOOP["completed"] = ["MONITOR", "DETECT"]
-    AGENTIC_LOOP["active"] = "RESPOND"
-    AGENTIC_LOOP["confidence"] = 0.92
-    METRICS["active_sessions"] -= 12
-    live.update(make_layout(14))
-    time.sleep(1.0)
+# ---------------------------------------------------------------------------
+# Tab 3: Analytics Content
+# ---------------------------------------------------------------------------
 
-    log_event("ANPD ticket: COMP-2026-0413-112", GREEN)
-    AGENTIC_LOOP["completed"] = ["MONITOR", "DETECT", "RESPOND", "HUNT", "LESSONS"]
-    AGENTIC_LOOP["active"] = None
-    live.update(make_layout(15))
-    time.sleep(2)
+class AnalyticsContent(Container):
+    """ASCII data visualization, OKRs, and financial reports."""
 
-    log_event("DEMO COMPLETE — 4 threats neutralized", f"bold {GREEN}")
-    live.update(make_layout(16))
+    def compose(self) -> ComposeResult:
+        with Horizontal(id="analytics-top"):
+            # Financial Impact by Playbook
+            yield Static(id="fin-chart")
+            # Monthly trend sparkline
+            yield Static(id="trend-chart")
+
+        with Horizontal(id="analytics-mid"):
+            # OKR Progress Bars
+            with Vertical(id="okr-panel"):
+                yield Label("[b cyan]OKRs & KPIs[/b cyan]")
+                for i in range(1, 6):
+                    yield Label(id=f"okr-label-{i}")
+                    yield ProgressBar(total=100, id=f"okr-bar-{i}", show_eta=False, show_percentage=True)
+
+            # Triple Surface + Vendor Dist
+            with Vertical(id="surface-vendor-panel"):
+                yield Static(id="surface-chart")
+                yield Static(id="vendor-dist-chart")
+
+        with Horizontal(id="analytics-bottom"):
+            # Fleet Health
+            yield Static(id="fleet-health")
+            # Incident KB financial impact
+            yield Static(id="incident-kb-chart")
+
+    def on_mount(self) -> None:
+        self._update_financial_chart()
+        self._update_trend_chart()
+        self._update_okrs()
+        self._update_surface_chart()
+        self._update_vendor_dist()
+        self._update_fleet_health()
+        self._update_incident_kb_chart()
+
+    def _update_financial_chart(self) -> None:
+        chart_data = {
+            "Zero Trust Auth": 120_000,
+            "DLP Guardian": 350_000,
+            "OT Sentinel": 580_000,
+            "Vendor Cascade": 420_000,
+            "LGPD Engine": 890_000,
+            "Phishing Block": 210_000,
+            "Geofence Guard": 95_000,
+            "Firmware Watch": 310_000,
+            "Shadow IT Patrol": 180_000,
+            "Biometric Auth": 140_000,
+        }
+        self.query_one("#fin-chart", Static).update(
+            Panel(ascii_bar_chart("Financial Impact by Playbook (R$)", chart_data, width=30, unit=""), border_style=AMBER, box=box.ROUNDED)
+        )
+
+    def _update_trend_chart(self) -> None:
+        costs = [m["cost_avoided_brl"] / 1_000_000 for m in MONTHLY_METRICS]
+        line = ascii_sparkline(costs, width=50)
+        text = Text()
+        text.append("Cost Avoided Trend (R$ millions)\n", style=f"bold {CYAN}")
+        text.append(line)
+        text.append(f"\nMin: {min(costs):.1f}M | Max: {max(costs):.1f}M | Avg: {sum(costs)/len(costs):.1f}M", style="dim")
+        self.query_one("#trend-chart", Static).update(Panel(text, border_style=CYAN, box=box.ROUNDED))
+
+    def _update_okrs(self) -> None:
+        okr_items = list(OKRS.values())[:5]
+        for i, okr in enumerate(okr_items, start=1):
+            lbl = self.query_one(f"#okr-label-{i}", Label)
+            bar = self.query_one(f"#okr-bar-{i}", ProgressBar)
+            status_emoji = "✓" if okr["status"] == "on_track" else "⚠"
+            lbl.update(f"{status_emoji} [b]{okr['name']}[/b] — Target: {okr['target']} | Current: {okr['current']}")
+            bar.progress = okr["progress_pct"]
+
+    def _update_surface_chart(self) -> None:
+        breakdown = get_triple_surface_breakdown()
+        self.query_one("#surface-chart", Static).update(
+            Panel(ascii_bar_chart("Triple Surface Blocks (30d)", breakdown, width=25), border_style=PURPLE, box=box.ROUNDED)
+        )
+
+    def _update_vendor_dist(self) -> None:
+        dist = get_vendor_risk_distribution()
+        self.query_one("#vendor-dist-chart", Static).update(
+            Panel(ascii_bar_chart("Vendor Risk Distribution", dist, width=25), border_style=ORANGE, box=box.ROUNDED)
+        )
+
+    def _update_fleet_health(self) -> None:
+        health = get_fleet_health()
+        text = Text()
+        text.append("Fleet Health\n", style=f"bold {GREEN}")
+        text.append(f"Total Nodes: {health['total_nodes']}\n", style="white")
+        text.append(f"Online:      {health['online']} ({health['coverage_pct']}%)\n", style=GREEN)
+        text.append(f"Offline:     {health['offline']}\n", style=RED)
+        text.append(f"Up-to-Date:  {health['up_to_date']}\n", style=GREEN)
+        text.append(f"Outdated:    {health['outdated']}\n", style=AMBER)
+        self.query_one("#fleet-health", Static).update(Panel(text, border_style=GREEN, box=box.ROUNDED))
+
+    def _update_incident_kb_chart(self) -> None:
+        data = {inc["title"][:22]: inc["financial_impact_brl"] for inc in INCIDENT_KB}
+        self.query_one("#incident-kb-chart", Static).update(
+            Panel(ascii_bar_chart("Incident KB — Impact (R$)", data, width=30), border_style=RED, box=box.ROUNDED)
+        )
+
+
+# ---------------------------------------------------------------------------
+# Main App
+# ---------------------------------------------------------------------------
+
+class PetroShieldTUI(App):
+    """Main Textual application."""
+
+    CSS = """
+    Screen { align: center middle; }
+
+    .tab-container { padding: 1 2; }
+
+    #dash-top { height: auto; }
+    #dash-torch { width: 18; }
+    Static { margin: 0 1; }
+
+    #dash-mid { height: auto; margin-top: 1; }
+    #agentic-loop-panel { width: 50%; }
+    #triple-surface-panel { width: 50%; }
+
+    #dash-sub { height: auto; margin-top: 1; }
+    #compliance-panel { width: 50%; }
+    #vendor-spotlight-panel { width: 50%; }
+
+    #event-stream-panel { height: 1fr; margin-top: 1; }
+    #event-log { height: 1fr; border: solid $primary; }
+
+    #ops-layout { height: 100%; }
+    #playbook-list-panel { width: 40%; }
+    #ops-output-panel { width: 60%; }
+    #ops-log { height: 2fr; border: solid $primary; }
+    #outcome-inspector { height: 1fr; margin-top: 1; }
+    #playbook-desc { height: auto; margin-top: 1; }
+
+    #analytics-top { height: auto; }
+    #analytics-mid { height: auto; margin-top: 1; }
+    #okr-panel { width: 50%; }
+    #surface-vendor-panel { width: 50%; }
+    #analytics-bottom { height: 1fr; margin-top: 1; }
+    #fleet-health { width: 50%; }
+    #incident-kb-chart { width: 50%; }
+
+    ProgressBar { height: 1; margin: 0 0 1 0; }
+    """
+
+    def compose(self) -> ComposeResult:
+        yield Header(show_clock=True)
+        with TabbedContent(initial="tab-dashboard"):
+            with TabPane("🔥 Dashboard", id="tab-dashboard"):
+                yield DashboardContent()
+            with TabPane("⚙️ Operations", id="tab-operations"):
+                yield OperationsContent()
+            with TabPane("📊 Analytics", id="tab-analytics"):
+                yield AnalyticsContent()
+        yield Footer()
+
+    def on_mount(self) -> None:
+        self.title = "PetroShield AxeGuard — SOC Agentic v2.5"
+        self.sub_title = "Grand Prix SENAI Nacional 2026"
 
 
 def main():
-    console.print("\n[bold green]Starting PetroShield Demo TUI...[/bold green]")
-    console.print("[dim]Run the API server in another terminal: uvicorn main:app --reload[/dim]\n")
-    time.sleep(1)
-
-    with Live(make_layout(0), screen=True, refresh_per_second=4) as live:
-        try:
-            frame = 0
-            # Run intro animation for a few seconds
-            for _ in range(8):
-                live.update(make_layout(frame))
-                time.sleep(0.3)
-                frame += 1
-
-            run_demo_sequence(live)
-
-            # Keep the final frame alive
-            while True:
-                live.update(make_layout(frame))
-                time.sleep(0.3)
-                frame += 1
-        except KeyboardInterrupt:
-            console.print("\n[bold green]PetroShield Demo TUI stopped.[/bold green]")
-            sys.exit(0)
+    app = PetroShieldTUI()
+    app.run()
 
 
 if __name__ == "__main__":
