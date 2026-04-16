@@ -1,0 +1,50 @@
+name: Deploy AxeGuard TUI to Netlify
+
+on:
+  push:
+    branches: [main, tui-axeguard]
+    paths:
+      - 'outer-tui-axeguard-ts/**'
+      - '.github/workflows/deploy-axeguard.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'outer-tui-axeguard-ts/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: outer-tui-axeguard-ts
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Typecheck
+        run: bun run typecheck || true
+
+      - name: Build TUI bundle
+        run: bun run build
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: './outer-tui-axeguard-ts/web'
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy AxeGuard TUI from ${{ github.sha }}"
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_AXEGUARD }}

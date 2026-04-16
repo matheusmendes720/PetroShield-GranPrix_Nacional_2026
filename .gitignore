@@ -13,5 +13,7 @@
 .DS_Store
 Thumbs.db
 node_modules/
+dist/
+bun.lockb
 *.log
 .env

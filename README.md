@@ -47,6 +47,13 @@ Abaixo, o quadro estratégico que define o modelo de negócios e a viabilidade e
 
 ---
 
+## 🖥️ TUIs Node/TypeScript + Bun (Outer Instances)
+Protótipos de terminal independentes para demonstração local e deploy contínuo.
+- **[outer-tui-axeguard-ts](outer-tui-axeguard-ts/)** — Dashboard SOC com `ink` (React no terminal)
+- **[outer-tui-classic-ts](outer-tui-classic-ts/)** — Terminal cyber-ops com `blessed`
+- **Deploy:** [petroshield-app.netlify.app](https://petroshield-app.netlify.app) | [petroshield-classic.netlify.app](https://petroshield-classic.netlify.app)
+- **Setup CI/CD:** veja [TUI_NETLIFY_SETUP.md](TUI_NETLIFY_SETUP.md)
+
 ## ⚓ Links Rápidos
 | Link | Descrição |
 | :--- | :--- |

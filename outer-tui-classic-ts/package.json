@@ -1,0 +1,25 @@
+{
+  "name": "petroshield-classic-tui",
+  "version": "1.0.0",
+  "description": "PetroShield Classic TUI — Terminal Cyber-Ops em Node/TS + Blessed + Bun",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build src/index.ts --outdir ./dist --target node",
+    "launch": "bun run dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "chalk": "^5.3.0",
+    "figlet": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/blessed": "^0.1.27",
+    "@types/figlet": "^1.5.8",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}

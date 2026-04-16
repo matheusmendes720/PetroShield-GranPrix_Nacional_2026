@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetroShield AxeGuard TUI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet" />
+  <style>
+    :root { --neon-green: #00FF41; --fire-orange: #FF6200; --deep-void: #0A0A0A; --cyan: #00FFFF; }
+    body { background-color: var(--deep-void); color: var(--neon-green); font-family: 'VT323', monospace; }
+    .glow { text-shadow: 0 0 8px var(--neon-green); }
+    .border-glow { box-shadow: 0 0 10px var(--fire-orange); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6">
+  <h1 class="text-5xl md:text-7xl glow mb-4 text-center">PetroShield AxeGuard</h1>
+  <p class="text-xl md:text-2xl text-[var(--cyan)] mb-8 text-center">TUI Dashboard SOC Agentic — Node/TS + Ink + Bun</p>
+
+  <div class="max-w-3xl w-full border-2 border-[var(--fire-orange)] rounded-lg p-6 border-glow bg-black/80">
+    <h2 class="text-3xl text-[var(--fire-orange)] mb-4">Como executar localmente</h2>
+    <pre class="bg-[#111] p-4 rounded text-lg overflow-x-auto text-[var(--neon-green)]">
+cd outer-tui-axeguard-ts
+bun install
+bun run dev
+    </pre>
+
+    <h2 class="text-3xl text-[var(--fire-orange)] mt-6 mb-4">Atalhos no terminal</h2>
+    <ul class="list-disc list-inside text-xl space-y-2">
+      <li><span class="text-[var(--cyan)]">[1]</span> Dashboard</li>
+      <li><span class="text-[var(--cyan)]">[2]</span> Operações</li>
+      <li><span class="text-[var(--cyan)]">[3]</span> Theatre</li>
+      <li><span class="text-[var(--cyan)]">[← / →]</span> Navegar entre abas</li>
+      <li><span class="text-[var(--cyan)]">[Q]</span> Sair</li>
+    </ul>
+
+    <h2 class="text-3xl text-[var(--fire-orange)] mt-6 mb-4">Deploy</h2>
+    <p class="text-xl">Deploy automático via GitHub Actions → Netlify a cada push na branch <code class="bg-[#111] px-2">main</code>.</p>
+  </div>
+
+  <footer class="mt-8 text-[var(--cyan)] text-lg">Grand Prix SENAI Nacional 2026</footer>
+</body>
+</html>
