@@ -15,7 +15,8 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background: #f0f2f5;
+      background: #020617; /* Slate 950 */
+      color: #f8fafc;
       display: flex;
       justify-content: center;
       align-items: flex-start;
@@ -25,34 +26,34 @@
 
     .canvas-wrapper {
       width: 1200px;
-      background: #fff;
-      border: 2px solid #3b5998;
-      border-radius: 6px;
+      background: #0f172a; /* Slate 900 */
+      border: 1px solid #1e293b;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
 
     /* ── HEADER ── */
     .canvas-header {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
-      padding: 20px 28px 14px;
-      border-bottom: 3px solid #3b5998;
-      background: #fafbfc;
+      align-items: center;
+      padding: 24px 32px;
+      border-bottom: 2px solid #3b5998;
+      background: rgba(15, 23, 42, 0.8);
     }
 
     .canvas-header h1 {
-      font-size: 36px;
+      font-size: 32px;
       font-weight: 800;
       color: #3b5998;
-      letter-spacing: -0.5px;
+      letter-spacing: -1px;
     }
 
     .canvas-header .brand {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
-      color: #1d2939;
+      color: #10b981; /* Emerald 500 */
     }
 
     /* ── GRID ── */
@@ -60,12 +61,11 @@
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
       grid-template-rows: auto auto;
-      border-bottom: 2px solid #3b5998;
     }
 
     .block {
-      border-right: 1px solid #d0d5dd;
-      border-bottom: 1px solid #d0d5dd;
+      border-right: 1px solid #1e293b;
+      border-bottom: 1px solid #1e293b;
       padding: 0;
       display: flex;
       flex-direction: column;
@@ -79,75 +79,52 @@
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #3b5998;
-      padding: 10px 12px 6px;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      padding: 14px 16px 8px;
+      background: rgba(2, 6, 23, 0.2);
     }
 
     .block-content {
-      padding: 4px 12px 12px;
+      padding: 8px 16px 16px;
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 10px;
     }
 
     .card {
-      background: #8b9dc3;
-      color: #fff;
-      font-size: 10.5px;
-      line-height: 1.4;
-      padding: 8px 10px;
-      border-radius: 4px;
-      font-weight: 500;
+      background: #1e293b;
+      color: #cbd5e1;
+      font-size: 11px;
+      line-height: 1.5;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border-left: 3px solid #3b5998;
+    }
+
+    .card.highlight {
+      border-left-color: #10b981;
+      background: #064e3b20;
     }
 
     .sub-title {
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
-      color: #d4740a;
-      padding: 8px 0 2px;
-      border-top: 1px solid #e4e7ec;
+      color: #f59e0b; /* Amber 500 */
+      padding: 12px 0 4px;
       margin-top: auto;
     }
 
     /* ── COLUMN SPANS ── */
-    .col-problema {
-      grid-column: 1;
-      grid-row: 1 / 3;
-    }
-
-    .col-solucao {
-      grid-column: 2;
-      grid-row: 1;
-    }
-
-    .col-metricas {
-      grid-column: 2;
-      grid-row: 2;
-    }
-
-    .col-uvp {
-      grid-column: 3;
-      grid-row: 1 / 3;
-    }
-
-    .col-vantagem {
-      grid-column: 4;
-      grid-row: 1;
-    }
-
-    .col-canais {
-      grid-column: 4;
-      grid-row: 2;
-    }
-
-    .col-clientes {
-      grid-column: 5;
-      grid-row: 1 / 3;
-    }
+    .col-problema { grid-column: 1; grid-row: 1 / 3; }
+    .col-solucao { grid-column: 2; grid-row: 1; }
+    .col-metricas { grid-column: 2; grid-row: 2; }
+    .col-uvp { grid-column: 3; grid-row: 1 / 3; border-right-width: 2px; border-right-color: #3b5998; }
+    .col-vantagem { grid-column: 4; grid-row: 1; }
+    .col-canais { grid-column: 4; grid-row: 2; }
+    .col-clientes { grid-column: 5; grid-row: 1 / 3; }
 
     /* ── BOTTOM ROW ── */
     .canvas-bottom {
@@ -160,21 +137,14 @@
     }
 
     .canvas-bottom .block:first-child {
-      border-right: 1px solid #d0d5dd;
+      border-right: 1px solid #1e293b;
     }
 
     /* ── PRINT ── */
     @media print {
-      body {
-        background: #fff;
-        padding: 0;
-      }
-
-      .canvas-wrapper {
-        box-shadow: none;
-        border-radius: 0;
-        width: 100%;
-      }
+      body { background: #fff; color: #000; padding: 0; }
+      .canvas-wrapper { box-shadow: none; border: 2px solid #000; width: 100%; }
+      .card { border: 1px solid #ccc; color: #000; background: #fff; }
     }
   </style>
 </head>
@@ -186,7 +156,7 @@
     <!-- HEADER -->
     <div class="canvas-header">
       <h1>Lean Canvas</h1>
-      <span class="brand">AxeGuard — PetroShield</span>
+      <span class="brand">AxeGuard — PetroShield Nacional</span>
     </div>
 
     <!-- MAIN GRID -->
@@ -197,10 +167,10 @@
         <div class="block-title">01 Problema</div>
         <div class="block-content">
           <div class="card">A Petrobras opera 100+ plataformas e enfrenta novos riscos com o uso de óculos inteligentes e dispositivos conectados por 10.000+ fornecedores com acesso aos dados.</div>
-          <div class="card">Vazamentos via parceiros custam de US$ 10-25M e ameaçam a soberania de ativos críticos como o Pré-Sal.</div>
+          <div class="card highlight">Vazamentos via parceiros custam de US$ 10-25M e ameaçam a soberania de ativos críticos como o Pré-Sal.</div>
           <div class="sub-title">Alternativas Existentes</div>
           <div class="card">Monitoramento humano tradicional: Custo elevado (US$ 50M+) e lento demais para paralisar ataques em tempo real.</div>
-          <div class="card">Segurança Legada: Senhas comuns em ambientes virtuais são fáceis de roubar; ferramentas atuais não "entendem" áudio ou comandos de IA.</div>
+          <div class="card">Segurança Legada: Senhas comuns em ambientes virtuais são fáceis de roubar; ferramentas atuais não entendem áudio ou comandos de IA.</div>
         </div>
       </div>
 
@@ -208,19 +178,19 @@
       <div class="block col-solucao">
         <div class="block-title">02 Solução</div>
         <div class="block-content">
-          <div class="card">Escudo de Dados Local (AxeGuard): Instalado nas plataformas para bloquear o vazamento de dados estratégicos e proteger as máquinas de comandos maliciosos.</div>
+          <div class="card">Escudo de Dados Local (AxeGuard): Instalado nas plataformas para bloquear o vazamento de dados estratégicos e proteger as máquinas.</div>
           <div class="card">Acesso Seguro por Celular: Login via biometria do celular aprovado, eliminando senhas digitadas que podem ser espionadas.</div>
-          <div class="card">Central de IA Autônoma: Robôs de software que pensam e agem em segundos para conter invasões e proteger toda a rede industrial.</div>
+          <div class="card">IA Autônoma (SOC Agêntico): Robôs de software que agem em segundos para conter invasões e proteger toda a rede industrial.</div>
         </div>
       </div>
 
       <!-- 03 MÉTRICAS-CHAVE -->
       <div class="block col-metricas">
-        <div class="block-title">03 Métricas-Chave</div>
+        <div class="block-title">03 MÉTRICAS-CHAVE (OKRs)</div>
         <div class="block-content">
-          <div class="card">Tempo de Reação: Identificar ameaças em menos de 50 segundos e neutralizar em até 2 minutos.</div>
-          <div class="card">Economia de Prevenção: Valor em milhões de dólares salvos ao evitar paradas não planejadas na produção.</div>
-          <div class="card">Nível de Proteção: Porcentagem da frota e fornecedores monitorados e validados pela IA.</div>
+          <div class="card highlight">MTTD (Detecção) < 50s.</div>
+          <div class="card highlight">MTTR (Neutralização) < 120s.</div>
+          <div class="card">Imunidade de Frota: 99%+ da cadeia validada e atualizada quase instantaneamente por IA.</div>
         </div>
       </div>
 
@@ -228,9 +198,9 @@
       <div class="block col-uvp">
         <div class="block-title">04 Proposta de Valor Única</div>
         <div class="block-content">
-          <div class="card" style="font-size: 12px; font-weight: 600;">O único sistema de segurança guiado por IA que entende o ambiente de petróleo e gás e neutraliza ataques em tempo real, protegendo os dados usados por assistentes inteligentes em campo.</div>
+          <div class="card" style="font-size: 13px; font-weight: 700; color: #fff; border-left-width: 5px;">O único sistema de segurança guiado por IA que entende o ambiente O&G e neutraliza ataques em tempo real, protegendo os dados usados por assistentes inteligentes em campo.</div>
           <div class="sub-title">Conceito de Alto Nível</div>
-          <div class="card">Uma "vacina digital" transparente que explica seu raciocínio e bloqueia automaticamente parceiros infectados antes que o vírus se espalhe.</div>
+          <div class="card">Uma "vacina digital" transparente que explica seu raciocínio e bloqueia automaticamente parceiros infectados.</div>
         </div>
       </div>
 
@@ -238,8 +208,8 @@
       <div class="block col-vantagem">
         <div class="block-title">05 Vantagem Injusta</div>
         <div class="block-content">
-          <div class="card">Inteligência Cooperativa: A IA toma decisões autônomas, mas deixa todo o "raciocínio" visível para o gestor humano auditar.</div>
-          <div class="card">Conformidade Automática: Detecta o ataque e já gera os relatórios exigidos por lei (LGPD/ANPD) no mesmo dia.</div>
+          <div class="card">Inteligência Cooperativa: A IA toma decisões autônomas, mas deixa todo o raciocínio visível para auditoria humana imediata.</div>
+          <div class="card highlight">Conformidade Automática: Detecta o ataque e gera relatórios ANPD/LGPD no mesmo dia.</div>
         </div>
       </div>
 
@@ -247,9 +217,9 @@
       <div class="block col-canais">
         <div class="block-title">06 Canais</div>
         <div class="block-content">
-          <div class="card">Eventos de Inovação: Demonstrações técnicas para diretores e juízes (Grand Prix SENAI).</div>
-          <div class="card">Portal Petronect: Registro oficial para se tornar fornecedor homologado da cadeia de Petróleo e Gás.</div>
-          <div class="card">Laboratórios de Pesquisa: Parcerias com centros de inovação da Petrobras (CENPES/ENFUSE).</div>
+          <div class="card">Grand Prix SENAI: Tech Demo para Stakeholders e Juízes.</div>
+          <div class="card">Petronect: Homologação mandatória na cadeia de O&G.</div>
+          <div class="card">ENFUSE Lab & CENPES: Hubs de inovação Petrobras.</div>
         </div>
       </div>
 
@@ -257,9 +227,9 @@
       <div class="block col-clientes">
         <div class="block-title">07 Segmentos de Clientes</div>
         <div class="block-content">
-          <div class="card">Petrobras e grandes empresas de energia com altos investimentos em tecnologia e segurança de dados.</div>
+          <div class="card">Petrobras S.A. e Corporates O&G com infraestrutura crítica e ativos multibilionários.</div>
           <div class="sub-title">Primeiros Adotantes</div>
-          <div class="card">Plataformas de produção offshore (FPSOs) e empresas de logística e manutenção que operam dentro das bacias petrolíferas.</div>
+          <div class="card">Bacias de FPSO offshore (Santos/Campos) e operadoras de logística Subsea.</div>
         </div>
       </div>
 
@@ -269,18 +239,18 @@
     <div class="canvas-bottom">
       <!-- 08 ESTRUTURA DE CUSTOS -->
       <div class="block">
-        <div class="block-title">08 Estrutura de Custos</div>
+        <div class="block-title">08 Estrutura de Custos (Amortização, CAPEX & OPEX)</div>
         <div class="block-content" style="flex-direction: row; gap: 8px; flex-wrap: wrap;">
-          <div class="card" style="flex: 1; min-width: 200px;">Tecnologia: Custos de processamento de Inteligência Artificial e armazenamento seguro de dados em nuvem.</div>
-          <div class="card" style="flex: 1; min-width: 200px;">Operação: Manutenção do sistema de monitoramento 24/7 e auditoria digital.</div>
+          <div class="card" style="flex: 1; min-width: 200px;"><strong>CAPEX (Infra Edge):</strong> ~R$ 2.5M para integração de sensores e framework Zero-Trust. Amortização linear em 36 meses.</div>
+          <div class="card" style="flex: 1; min-width: 200px;"><strong>OPEX (Ops 24/7):</strong> ~R$ 450k/mês (Processamento IA). Custo marginal mínimo para escala "National-Petro".</div>
         </div>
       </div>
       <!-- 09 FLUXOS DE RECEITA -->
       <div class="block">
-        <div class="block-title">09 Fluxos de Receita</div>
+        <div class="block-title">09 Fluxos de Receita (EBITDA, ROI & Profit Loss Avoided)</div>
         <div class="block-content" style="flex-direction: row; gap: 8px; flex-wrap: wrap;">
-          <div class="card" style="flex: 1; min-width: 200px;">Assinatura Mensal (SaaS): Planos corporativos para proteção contínua de plataformas e milhares de fornecedores.</div>
-          <div class="card" style="flex: 1; min-width: 200px;">Taxa de Implementação: Consultoria inicial para mapear sistemas antigos e emitir certificados de conformidade legal.</div>
+          <div class="card highlight" style="flex: 1; min-width: 200px;"><strong>SaaS Enterprise (ARR):</strong> ~R$ 12M/ano por Bacia. Margem Bruta >75%, impulsionando forte EBITDA.</div>
+          <div class="card highlight" style="flex: 1; min-width: 200px;"><strong>Profit Loss Avoided:</strong> R$ 50M a R$ 150M+ salvos por incidente contido. Payback da infra < 8 meses.</div>
         </div>
       </div>
     </div><!-- /canvas-bottom -->

@@ -1,0 +1,19 @@
+[2026-04-16 08:01:22] [INFO] [DLP_PROXY] Connection established from 10.55.2.14:49152
+[2026-04-16 08:01:23] [WARN] [DLP_REGEX_ENGINE] High-entropy string matched pattern: POSSIBLE_JWT_TOKEN. Payload size: 1024 bytes.
+[2026-04-16 08:01:23] [ALERT] [SOC_INGEST] Forwarding event to Monitor Subgraph. Incident ID pending.
+[2026-04-16 08:02:45] [INFO] [DLP_PROXY] Request GET /api/v1/secure-prompt. User agent: python-requests/2.31.0
+[2026-04-16 08:02:45] [WARN] [DLP_ANALYZER] Found Brazilian CPF in plain text: 123.456.789-00. Action: MASKING.
+[2026-04-16 08:02:45] [INFO] [DLP_PROXY] Rewriting payload: Replacing sensitive info with [CPF_BLOQUEADO].
+[2026-04-16 08:05:12] [CRITICAL] [DLP_PROXY] Large payload upload detected (450MB) to destination: api.openai.com.
+[2026-04-16 08:05:13] [CRITICAL] [DLP_ANALYZER] Payload inspect: Contains keyword 'DIAGRAMA DE BLOCOS', 'ARQUITETURA DE PLATAFORMA P-70'.
+[2026-04-16 08:05:13] [ALERT] [SUPERVISOR] Escalating to Detect Subgraph. Threat Intel matching required.
+[2026-04-16 08:05:15] [INFO] [RAG_RETRIEVER] Searching ChromaDB... Found policy match: "Documentos de Engenharia e Blocos de Plataforma são estritamente proibidos em serviços de GenAI externos."
+[2026-04-16 08:05:15] [ACTION] [RESPOND_SUBGRAPH] Connection TERMINATED. TCP RST sent to client 10.55.2.14.
+[2026-04-16 08:05:16] [INFO] [INCIDENT_REPORT] Incident INC-2026-0416-012 closed automatically. Playbook PB-DLP-001 executed successfully.
+[2026-04-16 08:12:00] [WARN] [DLP_PROXY] High volume of small requests from 192.168.100.41. Rate limiting applied.
+[2026-04-16 08:12:02] [ALERT] [HUNT_SUBGRAPH] Hypothesis generated: Possible data exfiltration via DNS tunneling or HTTP GET parameters. Starting deep packet inspection.
+[2026-04-16 08:15:30] [INFO] [HUNT_SUBGRAPH] Deep packet inspection negative. Traffic is a misconfigured monitoring script. Updating baseline.
+[2026-04-16 08:22:11] [ERROR] [DLP_PROXY] Connection dropped to upstream proxy. Retrying...
+[2026-04-16 08:22:25] [INFO] [DLP_PROXY] Upstream proxy restored. Processing backlog.
+[2026-04-16 09:00:01] [WARN] [DLP_ANALYZER] Unencrypted database connection string found in outgoing HTTP POST. Host: prd-pgsql-cluster.internal.petrobras.com.br. Action: BLOCK_AND_ALERT.
+[2026-04-16 09:00:02] [ALERT] [SUPERVISOR] Routing to Analyse Subgraph. Level 3 Triage required due to credential exposure.

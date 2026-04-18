@@ -1,0 +1,6 @@
+{"ts": "2026-04-17T14:16:21.583874Z", "level": "INFO", "source": "harness", "event": "harness_start", "payload": {"argv": ["status"]}, "host": "FLYTWIST", "version": "2.6.0-harness"}
+{"ts": "2026-04-17T14:16:21.647144Z", "level": "ERROR", "source": "harness", "event": "harness_fatal", "payload": {"error": "'charmap' codec can't encode character '\\u2713' in position 0: character maps to <undefined>"}, "host": "FLYTWIST", "version": "2.6.0-harness"}
+{"ts": "2026-04-17T14:17:07.351263Z", "level": "INFO", "source": "harness", "event": "harness_start", "payload": {"argv": ["status"]}, "host": "FLYTWIST", "version": "2.6.0-harness"}
+{"ts": "2026-04-17T14:17:07.414385Z", "level": "INFO", "source": "harness", "event": "status_viewed", "payload": {"worktrees": 2}, "host": "FLYTWIST", "version": "2.6.0-harness"}
+{"ts": "2026-04-17T14:17:18.002547Z", "level": "INFO", "source": "harness", "event": "harness_start", "payload": {"argv": ["inject", "--count", "100"]}, "host": "FLYTWIST", "version": "2.6.0-harness"}
+{"ts": "2026-04-17T14:17:18.038032Z", "level": "INFO", "source": "harness", "event": "synthetic_inject", "payload": {"devices": 100, "metrics": 10}, "host": "FLYTWIST", "version": "2.6.0-harness"}

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,7 @@
             --term-cyan: #00f3ff;
             --term-yellow: #f59e0b;
             --term-purple: #c084fc;
-            
+
             --dash-bg: #0f172a;
             --panel-bg: rgba(30, 41, 59, 0.7);
             --text-main: #f8fafc;
@@ -64,12 +65,32 @@
             box-shadow: inset 0 0 50px rgba(0, 255, 65, 0.05);
         }
 
-        .log-line { margin-bottom: 4px; opacity: 0.9; }
-        .log-sys { color: var(--term-cyan); }
-        .log-rag { color: var(--term-purple); }
-        .log-agent { color: var(--term-green); }
-        .log-alert { color: var(--term-red); font-weight: bold; text-shadow: 0 0 5px red;}
-        .log-tool { color: var(--term-yellow); }
+        .log-line {
+            margin-bottom: 4px;
+            opacity: 0.9;
+        }
+
+        .log-sys {
+            color: var(--term-cyan);
+        }
+
+        .log-rag {
+            color: var(--term-purple);
+        }
+
+        .log-agent {
+            color: var(--term-green);
+        }
+
+        .log-alert {
+            color: var(--term-red);
+            font-weight: bold;
+            text-shadow: 0 0 5px red;
+        }
+
+        .log-tool {
+            color: var(--term-yellow);
+        }
 
         .terminal-input-bar {
             padding: 15px;
@@ -87,7 +108,12 @@
             background-color: var(--term-green);
             animation: blink 1s step-end infinite;
         }
-        @keyframes blink { 50% { opacity: 0; } }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
 
         /* RIGHT PANEL: Executive Dashboard */
         .dash-container {
@@ -99,7 +125,7 @@
             flex-direction: column;
             padding: 20px;
         }
-        
+
         .dash-header {
             display: flex;
             justify-content: space-between;
@@ -134,15 +160,40 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .metric-card::before {
-            content: ''; position: absolute; top:0; left:0; width: 3px; height: 100%; background: var(--term-cyan);
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--term-cyan);
         }
 
-        .metric-title { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;}
-        .metric-value { font-size: 28px; font-weight: bold; margin-top: 10px; color: var(--text-main); }
-        .metric-value.money { color: var(--term-green); text-shadow: 0 0 10px rgba(0,255,65,0.4); }
-        .metric-value.threat { color: var(--term-red); text-shadow: 0 0 10px rgba(255,51,51,0.4); }
+        .metric-title {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: var(--text-main);
+        }
+
+        .metric-value.money {
+            color: var(--term-green);
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+        }
+
+        .metric-value.threat {
+            color: var(--term-red);
+            text-shadow: 0 0 10px rgba(255, 51, 51, 0.4);
+        }
 
         .compliance-banner {
             background: rgba(0, 255, 65, 0.1);
@@ -155,7 +206,10 @@
             gap: 15px;
         }
 
-        .compliance-banner i { font-size: 24px; color: var(--term-green); }
+        .compliance-banner i {
+            font-size: 24px;
+            color: var(--term-green);
+        }
 
         /* Actions */
         .action-overlay {
@@ -174,15 +228,17 @@
             font-size: 12px;
             text-transform: uppercase;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(255,51,51,0.2);
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.2);
             transition: 0.3s;
         }
+
         button.hack-btn:hover {
-            background: rgba(255,51,51,0.2);
-            box-shadow: 0 0 20px rgba(255,51,51,0.5);
+            background: rgba(255, 51, 51, 0.2);
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.5);
         }
     </style>
 </head>
+
 <body>
 
     <!-- OVERLAY TRIGGER -->
@@ -225,15 +281,22 @@
                 <div class="metric-title">Downtime Evitado (Horas)</div>
                 <div class="metric-value" id="uptime-counter">0 h</div>
             </div>
-            <div class="metric-card" style="grid-column: span 2; background: rgba(0,255,65,0.05); --term-cyan: var(--term-green);">
+            <div class="metric-card"
+                style="grid-column: span 2; background: rgba(0,255,65,0.05); --term-cyan: var(--term-green);">
                 <div class="metric-title">Faturamento Salvaguardado (ROI Imediato)</div>
                 <div class="metric-value money" id="money-counter">R$ 0,00</div>
-                <div style="font-size:11px; margin-top:5px; color:#94a3b8">Base de Risco: R$ 80.000 / dia operado. R$ 500k recup.</div>
+                <div style="font-size:11px; margin-top:5px; color:#94a3b8">Base de Risco: R$ 80.000 / dia operado. R$
+                    500k recup.</div>
             </div>
         </div>
 
-        <div class="compliance-banner" id="compliance-banner" style="border-color: rgba(255,255,255,0.2); background: transparent">
-            <svg id="comp-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>
+        <div class="compliance-banner" id="compliance-banner"
+            style="border-color: rgba(255,255,255,0.2); background: transparent">
+            <svg id="comp-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8"
+                stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 8v4M12 16h.01"></path>
+            </svg>
             <div>
                 <strong style="color:var(--text-main)" id="comp-title">LGPD & Compliance Status</strong><br>
                 <span style="font-size:12px; color:#94a3b8" id="comp-desc">Aguardando auditoria em tempo real...</span>
@@ -245,7 +308,7 @@
         const terminal = document.getElementById('term-output');
         const typingArea = document.getElementById('typing-cmd');
         const btn = document.getElementById('run-demo-btn');
-        
+
         // Dash Elements
         const threatCounter = document.getElementById('threat-counter');
         const uptimeCounter = document.getElementById('uptime-counter');
@@ -263,7 +326,7 @@
                 let int = setInterval(() => {
                     container.innerHTML += text.charAt(i);
                     i++;
-                    if(i >= text.length) {
+                    if (i >= text.length) {
                         clearInterval(int);
                         resolve();
                     }
@@ -290,13 +353,13 @@
 
             // 2. Initial Telemetry
             setTimeout(() => logLine('[Telemtry] Ingesting IoT Flow: 4.5 MB/s...', 'log-sys'), 1000);
-            
+
             // 3. The Attack Hits (T+2s)
             setTimeout(() => {
                 logLine('\n[GRAPH: SUPERVISOR] ROUTING EVENT TO `Agent_DLP_Edge`', 'log-sys');
                 logLine('[Agent_DLP_Edge] [ALERT] Unrecognized lateral movement detected on VLAN 40 (SCADA).', 'log-alert');
                 logLine('[Agent_DLP_Edge] Payload signature unknown. Escalating extraction protocol...', 'log-agent');
-                
+
                 // Dashboard Update
                 threatCounter.innerText = '1 (CRITICAL)';
             }, 2500);
@@ -322,17 +385,17 @@
                 logLine('\n[GRAPH: SUPERVISOR] ROUTING EVENT TO `Agent_CLevel_Report`', 'log-sys');
                 logLine('[Agent_CLevel_Report] Processing operation delta...', 'log-agent');
                 logLine('[Agent_CLevel_Report] Updating WebSocket endpoints for Executive Dashboard.', 'log-sys');
-                
+
                 // THE DASHBOARD ROCKETS UP
                 uptimeCounter.innerText = '48 h';
                 moneyCounter.innerText = 'R$ 580.000,00';
-                
+
                 // UI Magic
                 let count = 0;
                 let countInt = setInterval(() => {
                     count += 10000;
                     moneyCounter.innerText = `R$ ${count.toLocaleString('pt-BR')},00`;
-                    if(count >= 580000) clearInterval(countInt);
+                    if (count >= 580000) clearInterval(countInt);
                 }, 20);
 
             }, 10500);
@@ -355,4 +418,5 @@
         }
     </script>
 </body>
+
 </html>

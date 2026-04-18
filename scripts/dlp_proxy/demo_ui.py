@@ -150,14 +150,13 @@ class Torch(Static):
 
     def advance_frame(self) -> None:
         self.frame_index = (self.frame_index + 1) % len(TORCH_FRAMES)
-        content = Text()
+        content = Text(justify="center")
         content.append(TORCH_FRAMES[self.frame_index], style=ORANGE)
         content.append("\n\n")
         content.append(PETRO_BANNER, style=CYAN)
         
         self.update(Panel(
             content,
-            justify="center",
             title="[bold]AxeGuard[/]",
             border_style=ORANGE,
             box=box.ROUNDED,
@@ -658,21 +657,18 @@ class AnalyticsContent(Container):
         self._update_incident_kb_chart()
 
     def _update_financial_chart(self) -> None:
-        chart_data = {
-            "Zero Trust Auth": 120_000,
-            "DLP Guardian": 350_000,
-            "OT Sentinel": 580_000,
-            "Vendor Cascade": 420_000,
-            "LGPD Engine": 890_000,
-            "Phishing Block": 210_000,
-            "Geofence Guard": 95_000,
-            "Firmware Watch": 310_000,
-            "Shadow IT Patrol": 180_000,
-            "Biometric Auth": 140_000,
-        }
+        # Build dynamic chart data from expanded playbooks
+        chart_data = {}
+        for wf in AGENTIC_WORKFLOWS[:12]:  # Top 12 for better display
+            name = wf["workflow_name"].replace("Playbook: ", "").replace("Routine: ", "")
+            # Generate a consistent but synthetic "impact" value based on business value length
+            impact = 100_000 + (len(wf["description"]) * 1500)
+            chart_data[name[:22]] = impact
+            
         self.query_one("#fin-chart", Static).update(
             Panel(ascii_bar_chart("Impacto Financeiro por Playbook (R$)", chart_data, width=30, unit=""), border_style=AMBER, box=box.ROUNDED)
         )
+
 
     def _update_trend_chart(self) -> None:
         costs = [m["cost_avoided_brl"] / 1_000_000 for m in MONTHLY_METRICS]

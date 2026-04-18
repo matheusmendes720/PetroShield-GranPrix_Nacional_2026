@@ -1,0 +1,102 @@
+[
+  {
+    "scenario_id": "EVAL-DLP-001",
+    "category": "Data Leakage (GenAI)",
+    "description": "User attempts to paste a proprietary Petrobras drilling algorithm into ChatGPT.",
+    "input_telemetry": {
+      "user": "eng_sr_04",
+      "action": "WEB_CLIPBOARD_PASTE",
+      "destination": "chat.openai.com",
+      "content_snippet": "def optimize_drilling_pressure(depth_m, rock_density):\n # Petrobras Confidential Algorithm V4\n base_pressure = ..."
+    },
+    "agentic_workflow_expected": {
+      "triage_classification": "High Risk",
+      "decision_matrix_evaluation": {
+        "dlp_confidence": 0.99,
+        "false_positive_prob": 0.01
+      },
+      "long_term_memory_query": "Search pgvector for 'Petrobras Confidential Algorithm V4' policy",
+      "orchestrator_action": "Intercept request, block paste operation, and display corporate warning about GenAI usage. Generate incident report."
+    }
+  },
+  {
+    "scenario_id": "EVAL-OT-042",
+    "category": "Operational Technology (SCADA) Anomaly",
+    "description": "A PLC responsible for pipeline flow control receives a Stop command during peak production hours.",
+    "input_telemetry": {
+      "asset_type": "Flow_Control_PLC",
+      "asset_ip": "10.40.12.5",
+      "protocol": "Modbus_TCP",
+      "command": "0x00 STOP PUMP",
+      "source_ip": "10.10.5.99 (Engineering Workstation)"
+    },
+    "agentic_workflow_expected": {
+      "triage_classification": "Critical",
+      "decision_matrix_evaluation": {
+        "anomaly_score": 0.95,
+        "impact_score": 1.0
+      },
+      "long_term_memory_query": "Search Qdrant for past maintenance windows for asset 10.40.12.5",
+      "orchestrator_action": "Cross-reference with ITIL/ServiceNow for active change requests. If none found, isolate the workstation 10.10.5.99 from the OT network and alert shift supervisor immediately."
+    }
+  },
+  {
+    "scenario_id": "EVAL-IAM-013",
+    "category": "Identity and Access Management",
+    "description": "Multiple simultaneous login failures followed by a successful login, all from a tor exit node.",
+    "input_telemetry": {
+      "user": "a.pereira",
+      "failures": 45,
+      "success": 1,
+      "time_window_seconds": 120,
+      "source_ip": "185.220.101.5",
+      "ip_reputation": "Tor Exit Node"
+    },
+    "agentic_workflow_expected": {
+      "triage_classification": "High Risk",
+      "decision_matrix_evaluation": {
+        "brute_force_confidence": 0.98,
+        "compromise_confidence": 0.95
+      },
+      "long_term_memory_query": "Search ChromaDB for recent credential stuffing attacks against ADFS",
+      "orchestrator_action": "Invalidate session token immediately. Trigger automatic password reset. Block Tor Exit Node IP range at the perimeter firewall."
+    }
+  },
+  {
+    "scenario_id": "EVAL-HUNT-088",
+    "category": "Threat Hunting (Proactive)",
+    "description": "Agent is asked to hunt for signs of a new zero-day vulnerability exploiting internal Jenkins servers.",
+    "input_telemetry": {
+      "hunt_prompt": "Search telemetry over the last 48 hours for unusual outbound connections from internal Jenkins builders to unknown external IPs over port 4444 or 8080.",
+      "hunt_target_assets": ["srv-jenkins-01", "srv-jenkins-02", "srv-jenkins-03"]
+    },
+    "agentic_workflow_expected": {
+      "triage_classification": "Hunt Hypothesis Generation",
+      "decision_matrix_evaluation": {
+        "relevance_score": 0.90
+      },
+      "long_term_memory_query": "Extract IoCs for CVE-2026-XXXXX from threat intel feeds",
+      "orchestrator_action": "Execute KQL queries against SIEM. Analyze results with LLM. If connections found, escalate to Incident Response subgraph. Otherwise, log hypothesis as 'Null Result'."
+    }
+  },
+  {
+    "scenario_id": "EVAL-PHISH-002",
+    "category": "Email Security",
+    "description": "Executive receives an email looking like a highly targeted spear-phishing attempt disguised as a legal subpoena.",
+    "input_telemetry": {
+      "recipient": "c_level_executive@petrobras.com.br",
+      "sender": "legal@petrobras-compliance-external.com",
+      "subject": "URGENT: Legal Subpoena - Immediate Action Required",
+      "attachment": "Subpoena_Document.pdf",
+      "attachment_hash": "a4d3f5e..."
+    },
+    "agentic_workflow_expected": {
+      "triage_classification": "Medium Risk (Pending Analysis)",
+      "decision_matrix_evaluation": {
+        "phishing_confidence": 0.85
+      },
+      "long_term_memory_query": "Check outer memory for known phishing domains mimicking Petrobras compliance",
+      "orchestrator_action": "Detonate PDF in sandbox. Analyze domain reputation. If malicious, quarantine email across all mailboxes and notify executive."
+    }
+  }
+]

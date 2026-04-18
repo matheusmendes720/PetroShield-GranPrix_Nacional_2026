@@ -17,3 +17,24 @@ dist/
 bun.lockb
 *.log
 .env
+
+# Python build artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Design Assets (Large Binaries)
+design/*.jpg
+design/*.jpeg
+design/*.png
+design/*.mp4
+design/*.gif
+
+# Netlify / Build
+.netlify/
+.cache/

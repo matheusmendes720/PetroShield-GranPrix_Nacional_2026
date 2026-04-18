@@ -22,11 +22,13 @@
 
 [CmdletBinding()]
 param(
-    [ValidateSet("tui", "api", "theatre", "both")]
+    [ValidateSet("tui", "api", "theatre", "both", "both-detached")]
     [string]$Mode = "tui",
 
     [switch]$Install,
-    [switch]$Update
+    [switch]$Update,
+    [switch]$Test,
+    [switch]$Dev
 )
 
 $ErrorActionPreference = "Stop"
@@ -124,7 +126,7 @@ function Start-Theatre {
 
 function Start-Both {
     Write-Host "[->] Starting FastAPI Backend in background window..." -ForegroundColor Cyan
-    $apiCmd = "`$env:PYTHONIOENCODING='utf-8'; `\".\.venv\Scripts\python.exe\" -m scripts.dlp_proxy.main"
+    $apiCmd = "`$env:PYTHONIOENCODING='utf-8'; `".\.venv\Scripts\python.exe`" -m scripts.dlp_proxy.main"
     Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit","-Command",$apiCmd -WindowStyle Normal -WorkingDirectory $ScriptRoot
 
     Start-Sleep -Seconds 2
@@ -134,19 +136,67 @@ function Start-Both {
     & $python -m scripts.dlp_proxy.demo_ui
 }
 
+function Start-BothDetached {
+    Write-Host "[->] Starting FastAPI Backend in new window..." -ForegroundColor Cyan
+    $apiCmd = "`$env:PYTHONIOENCODING='utf-8'; cd `"$ScriptRoot`"; .\.venv\Scripts\python.exe -m scripts.dlp_proxy.main"
+    Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit","-Command",$apiCmd -WindowStyle Normal -WorkingDirectory $ScriptRoot
+
+    Start-Sleep -Seconds 2
+
+    Write-Host "[->] Launching PetroShield TUI Dashboard in new window..." -ForegroundColor Cyan
+    $tuiCmd = "`$env:PYTHONIOENCODING='utf-8'; cd `"$ScriptRoot`"; .\.venv\Scripts\python.exe -m scripts.dlp_proxy.demo_ui"
+    Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit","-Command",$tuiCmd -WindowStyle Normal -WorkingDirectory $ScriptRoot
+}
+
+function Invoke-TestSuite {
+    Write-Host "[->] Running full test suite..." -ForegroundColor Cyan
+    $python = ".\.venv\Scripts\python.exe"
+
+    & $python -m unittest tests.test_orchestrator -v
+    if ($LASTEXITCODE -ne 0) { throw "Orchestrator tests failed." }
+
+    & $python -m scripts.agentic_soc.orchestrator --test
+    if ($LASTEXITCODE -ne 0) { throw "Orchestrator self-test failed." }
+
+    & $python -m unittest tests.test_tui -v
+    if ($LASTEXITCODE -ne 0) { throw "TUI tests failed." }
+
+    $tmp = Join-Path $env:TEMP "theatre_smoke_$([Guid]::NewGuid().ToString().Substring(0,8)).py"
+    @'
+from scripts.agentic_soc.theatre import TheatreEngine
+engine = TheatreEngine(quiet=True)
+workflows = [w["scene_id"] for w in engine.scenarios]
+assert len(workflows) >= 12
+for wf in workflows:
+    result = engine.run_scene(wf)
+    assert result["final_state"] is not None
+    print(f"  [OK] {wf} -> {result['final_state'].get('dlp_action', 'N/A')}")
+print("  [PASS] All workflow smoke tests passed")
+'@ | Set-Content -Path $tmp -Encoding UTF8
+    & $python $tmp
+    if ($LASTEXITCODE -ne 0) { throw "Theatre smoke tests failed." }
+
+    Write-Host "[OK] All tests passed. Proceeding to launch...`n" -ForegroundColor Green
+}
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 Write-Banner
 Ensure-VEnv
 
+if ($Test) {
+    Invoke-TestSuite
+}
+
 try {
     switch ($Mode.ToLower()) {
         "tui"      { Start-TUI }
         "api"      { Start-API }
         "theatre"  { Start-Theatre }
-        "both"     { Start-Both }
-        default    { Start-TUI }
+        "both"           { Start-Both }
+        "both-detached"  { Start-BothDetached }
+        default          { Start-TUI }
     }
 }
 catch {

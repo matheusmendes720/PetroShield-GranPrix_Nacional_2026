@@ -1,0 +1,223 @@
+[
+  {
+    "incident_id": "INC-2026-0416-001",
+    "timestamp": "2026-04-16T08:15:32Z",
+    "source": "DLP",
+    "severity": "CRITICAL",
+    "raw_telemetry": {
+      "event_type": "Data Exfiltration Attempt",
+      "user": "j.silva@petrobras.com.br",
+      "department": "Engenharia Offshore",
+      "action": "UPLOAD_TO_EXTERNAL_CLOUD",
+      "destination_ip": "185.199.108.153",
+      "destination_url": "drop-file-anon.ru/upload",
+      "file_name": "Projeto_Drill_PreSal_Tupi_v4.pdf",
+      "file_size_bytes": 45091230,
+      "matched_patterns": ["CONFIDENTIAL_DOCUMENT_MARKER", "PROJECT_BLUEPRINT"]
+    },
+    "soc_analysis": {
+      "triage_level": 3,
+      "confidence": 0.98,
+      "decision_matrix_score": {
+        "anomaly_score": 0.95,
+        "threat_intel": 0.8
+      },
+      "expected_action": "BLOCK_AND_ISOLATE",
+      "response_playbook": "PB-DLP-001-Intellectual_Property",
+      "langgraph_path": ["Monitor", "Detect", "Analyse", "Respond"]
+    }
+  },
+  {
+    "incident_id": "INC-2026-0416-002",
+    "timestamp": "2026-04-16T14:22:11Z",
+    "source": "SCADA/OT",
+    "severity": "HIGH",
+    "raw_telemetry": {
+      "event_type": "Unauthorized PLC Command",
+      "asset_id": "PLC-Rig-Beta-04",
+      "location": "Plataforma P-74 (Bacia de Santos)",
+      "protocol": "Modbus TCP",
+      "action": "WRITE_MULTIPLE_REGISTERS",
+      "source_ip": "10.0.45.12",
+      "anomalies_detected": [
+        "Command originating from corporate subnet instead of OT subnet",
+        "Target registers control blowout preventer (BOP) test valves"
+      ]
+    },
+    "soc_analysis": {
+      "triage_level": 3,
+      "confidence": 0.91,
+      "decision_matrix_score": {
+        "anomaly_score": 0.99,
+        "threat_intel": 0.4
+      },
+      "expected_action": "DROP_CONNECTION_AND_ALERT_OT_MANAGER",
+      "response_playbook": "PB-OT-042-Critical_Valve_Protection",
+      "langgraph_path": ["Monitor", "Detect", "Analyse", "Respond", "Incident Response"]
+    }
+  },
+  {
+    "incident_id": "INC-2026-0416-003",
+    "timestamp": "2026-04-16T09:05:10Z",
+    "source": "IAM",
+    "severity": "MEDIUM",
+    "raw_telemetry": {
+      "event_type": "Impossible Travel",
+      "user": "m.santos@petrobras.com.br",
+      "login_events": [
+        {
+          "time": "2026-04-16T09:00:00Z",
+          "ip": "177.100.200.5",
+          "location": "Salvador, BA, Brazil",
+          "device": "Corporate_Laptop_MacBookPro"
+        },
+        {
+          "time": "2026-04-16T09:05:10Z",
+          "ip": "45.132.22.44",
+          "location": "Moscow, Russia",
+          "device": "Unknown_Linux_Desktop"
+        }
+      ]
+    },
+    "soc_analysis": {
+      "triage_level": 2,
+      "confidence": 0.85,
+      "decision_matrix_score": {
+        "anomaly_score": 0.88,
+        "threat_intel": 0.6
+      },
+      "expected_action": "REQUIRE_MFA_AND_LOCK_ACCOUNT_IF_FAILED",
+      "response_playbook": "PB-IAM-010-Impossible_Travel",
+      "langgraph_path": ["Monitor", "Detect", "Analyse", "Respond"]
+    }
+  },
+  {
+    "incident_id": "INC-2026-0416-004",
+    "timestamp": "2026-04-16T11:45:00Z",
+    "source": "NETWORK",
+    "severity": "LOW",
+    "raw_telemetry": {
+      "event_type": "Port Scan Detected",
+      "source_ip": "192.168.1.105",
+      "target_ip_range": "10.0.0.0/24",
+      "ports_scanned": [22, 80, 443, 3389, 502],
+      "scan_type": "SYN Stealth",
+      "duration_seconds": 15
+    },
+    "soc_analysis": {
+      "triage_level": 1,
+      "confidence": 0.95,
+      "decision_matrix_score": {
+        "anomaly_score": 0.4,
+        "threat_intel": 0.1
+      },
+      "expected_action": "LOG_AND_MONITOR",
+      "response_playbook": "PB-NET-005-Internal_Reconnaissance",
+      "langgraph_path": ["Monitor", "Detect", "Analyse"]
+    }
+  },
+  {
+    "incident_id": "INC-2026-0416-005",
+    "timestamp": "2026-04-16T16:30:22Z",
+    "source": "EDR",
+    "severity": "HIGH",
+    "raw_telemetry": {
+      "event_type": "Suspicious Process Execution",
+      "user": "a.costa@petrobras.com.br",
+      "host": "WS-ENG-SALVADOR-88",
+      "process_name": "powershell.exe",
+      "command_line": "powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -EncodedCommand JABzAD0ATgBlAHcALQBPAGIAagBlAGMAdAAgAEkATwAuAE0AZQBtAG8AcgB5AFMAdAByAGUAYQBtACgAWwBDAG8AbgB2AGUAcgB0AF0AOgA6AEYAcgBvAG0AQgBhAHMAZQA2ADQAUwB0AHIAaQBuAGcAKAAiAEgA...",
+      "parent_process": "excel.exe"
+    },
+    "soc_analysis": {
+      "triage_level": 3,
+      "confidence": 0.99,
+      "decision_matrix_score": {
+        "anomaly_score": 0.95,
+        "threat_intel": 0.9
+      },
+      "expected_action": "KILL_PROCESS_AND_ISOLATE_HOST",
+      "response_playbook": "PB-EDR-088-Macro_Malware_Execution",
+      "langgraph_path": ["Monitor", "Detect", "Analyse", "Respond", "Incident Response"]
+    }
+  },
+  {
+    "incident_id": "INC-2026-0416-006",
+    "timestamp": "2026-04-16T18:10:05Z",
+    "source": "CLOUD_TRAIL",
+    "severity": "MEDIUM",
+    "raw_telemetry": {
+      "event_type": "S3 Bucket Policy Modification",
+      "user_identity": "arn:aws:iam::123456789012:user/dev_contractor_03",
+      "bucket_name": "petroshield-telemetry-backups-prd",
+      "action": "PutBucketPolicy",
+      "policy_changes": {
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": "s3:GetObject"
+      }
+    },
+    "soc_analysis": {
+      "triage_level": 2,
+      "confidence": 0.9,
+      "decision_matrix_score": {
+        "anomaly_score": 0.85,
+        "threat_intel": 0.3
+      },
+      "expected_action": "REVERT_POLICY_AND_REVOKE_SESSION",
+      "response_playbook": "PB-CLD-012-Public_Exposure",
+      "langgraph_path": ["Monitor", "Detect", "Analyse", "Respond"]
+    }
+  },
+  {
+    "incident_id": "INC-2026-0416-007",
+    "timestamp": "2026-04-16T22:05:30Z",
+    "source": "THREAT_HUNT",
+    "severity": "CRITICAL",
+    "raw_telemetry": {
+      "event_type": "Beaconing Pattern Identified",
+      "source_host": "SRV-DB-PAYMENT-01",
+      "destination_ips": ["194.55.22.10", "194.55.22.11"],
+      "protocol": "HTTPS (TLS 1.2)",
+      "frequency": "Every 45 minutes +/- 2 seconds",
+      "bytes_transferred_out": 25000,
+      "bytes_transferred_in": 500,
+      "ja3_hash": "236b2fd5ecd9480dc243689f41b2c608"
+    },
+    "soc_analysis": {
+      "triage_level": 3,
+      "confidence": 0.88,
+      "decision_matrix_score": {
+        "anomaly_score": 0.97,
+        "threat_intel": 0.7
+      },
+      "expected_action": "ESCALATE_TO_THREAT_INTEL_AND_CONTAIN_SERVER",
+      "response_playbook": "PB-HUNT-003-C2_Beaconing",
+      "langgraph_path": ["Hunt", "Analyse", "Respond", "Incident Response"]
+    }
+  },
+  {
+    "incident_id": "INC-2026-0416-008",
+    "timestamp": "2026-04-16T07:12:00Z",
+    "source": "DLP",
+    "severity": "HIGH",
+    "raw_telemetry": {
+      "event_type": "Sensitive Data in LLM Prompt",
+      "user": "p.lima@petrobras.com.br",
+      "application": "ChatGPT (Web)",
+      "content_snippet": "Please optimize this python script: DB_PASS='Sup3rSecr3tPetr0_2026' connection = psycopg2.connect(host='prd-db.petrobras.internal'...)",
+      "matched_patterns": ["HARDCODED_CREDENTIALS", "INTERNAL_DB_HOSTNAME"]
+    },
+    "soc_analysis": {
+      "triage_level": 2,
+      "confidence": 0.99,
+      "decision_matrix_score": {
+        "anomaly_score": 0.7,
+        "threat_intel": 0.2
+      },
+      "expected_action": "BLOCK_PROMPT_AND_NOTIFY_USER",
+      "response_playbook": "PB-DLP-044-GenAI_Leakage",
+      "langgraph_path": ["Monitor", "Detect", "Analyse", "Respond", "Lessons Learnt"]
+    }
+  }
+]

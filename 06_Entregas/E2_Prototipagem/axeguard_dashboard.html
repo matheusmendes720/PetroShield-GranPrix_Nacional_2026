@@ -1,20 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AxeGuard | PetroShield Dashboard</title>
+    <title>PetroShield | AxeGuard Engine v4.2</title>
     <style>
         :root {
-            --bg-dark: #0a0e17;
-            --panel-bg: rgba(16, 24, 39, 0.85);
-            --neon-green: #39FF14;
-            --neon-red: #ff3333;
+            --bg-dark: #05070a;
+            --panel-bg: rgba(10, 15, 24, 0.9);
+            --neon-green: #00FF41; /* Neon Matrix Green */
+            --neon-orange: #FF6200; /* Fire Petroleum Orange */
             --neon-blue: #00f3ff;
+            --neon-red: #FF0000;
             --text-main: #e2e8f0;
             --text-muted: #64748b;
-            --border-color: rgba(0, 243, 255, 0.2);
+            --border-color: rgba(0, 255, 65, 0.2);
+            --glass-bg: rgba(255, 255, 255, 0.03);
         }
+
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;700&display=swap');
 
         * {
             box-sizing: border-box;
@@ -25,455 +29,426 @@
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Inter', sans-serif;
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             background-image: 
-                radial-gradient(circle at 50% 50%, rgba(0, 243, 255, 0.05) 0%, transparent 60%),
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 100% 100%, 30px 30px, 30px 30px;
+                radial-gradient(circle at 50% 50%, rgba(0, 255, 65, 0.05) 0%, transparent 80%),
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
         }
 
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 30px;
-            background: linear-gradient(90deg, var(--panel-bg), transparent);
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+            padding: 10px 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid var(--border-color);
+            z-index: 1000;
         }
 
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--neon-blue);
-            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        .logo-area {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
 
-        .status-badge {
-            padding: 5px 15px;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: bold;
-            border: 1px solid var(--neon-green);
+        .logo-text {
+            font-family: 'VT323', monospace;
+            font-size: 28px;
             color: var(--neon-green);
-            text-shadow: 0 0 5px var(--neon-green);
-            box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.2);
-            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .status-badge.alert {
-            border-color: var(--neon-red);
-            color: var(--neon-red);
-            text-shadow: 0 0 5px var(--neon-red);
-            box-shadow: inset 0 0 10px rgba(255, 51, 51, 0.2);
-            animation: pulse-alert 1s infinite alternate;
-        }
-
-        @keyframes pulse-alert {
-            0% { box-shadow: inset 0 0 10px rgba(255, 51, 51, 0.2), 0 0 10px rgba(255, 51, 51, 0.4); }
-            100% { box-shadow: inset 0 0 20px rgba(255, 51, 51, 0.6), 0 0 20px rgba(255, 51, 51, 0.8); }
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: 1fr;
+        .system-status {
+            display: flex;
+            align-items: center;
             gap: 20px;
-            padding: 20px;
+            font-size: 12px;
+            font-family: 'VT323', monospace;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-green);
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr 350px;
+            grid-template-rows: 1fr 250px;
+            gap: 15px;
+            padding: 15px;
             flex: 1;
         }
 
         .panel {
             background: var(--panel-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 4px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             position: relative;
-        }
-
-        .panel::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            backdrop-filter: blur(10px);
         }
 
         .panel-header {
-            padding: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 14px;
-            font-weight: bold;
+            background: rgba(0, 255, 65, 0.1);
+            padding: 8px 12px;
+            font-family: 'VT323', monospace;
+            font-size: 16px;
+            color: var(--neon-green);
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .panel-body {
-            padding: 20px;
+        .panel-content {
             flex: 1;
-            display: flex;
-            flex-direction: column;
+            padding: 12px;
             overflow-y: auto;
         }
 
-        /* EDGE VIEW */
-        .log-row {
-            padding: 8px 0;
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
-            font-size: 12px;
-            display: flex;
-            gap: 15px;
-            opacity: 0.8;
-            transition: opacity 0.2s;
+        /* Console Style Logs */
+        .log-container {
+            font-family: 'VT323', monospace;
+            font-size: 14px;
+            line-height: 1.4;
         }
-        .log-row:hover { opacity: 1; }
-        .log-time { color: var(--text-muted); width: 80px; }
-        .log-src { color: var(--neon-blue); }
-        .log-dst { color: #f59e0b; }
-        .log-action { color: var(--neon-green); margin-left: auto; }
-        
-        .log-row.threat {
-            color: var(--neon-red);
-            font-weight: bold;
-            background: rgba(255, 51, 51, 0.1);
-            border-left: 3px solid var(--neon-red);
-            padding-left: 10px;
-        }
-        .log-row.threat .log-action { color: var(--neon-red); }
-        .log-row.threat .log-src { color: var(--text-main); }
-        .log-row.threat .log-dst { color: var(--text-main); }
 
-        /* CLOUD ORCHESTRATOR */
-        .orchestrator-ui {
+        .log-entry {
+            margin-bottom: 5px;
+            border-left: 2px solid transparent;
+            padding-left: 8px;
+        }
+
+        .log-entry.info { color: var(--text-muted); }
+        .log-entry.warn { color: var(--neon-orange); border-left-color: var(--neon-orange); }
+        .log-entry.critical { color: var(--neon-red); border-left-color: var(--neon-red); background: rgba(255,0,0,0.05); }
+        .log-entry.success { color: var(--neon-green); border-left-color: var(--neon-green); }
+
+        /* Agent Talk Area */
+        .agent-talk-card {
+            background: var(--glass-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .agent-name {
+            font-weight: bold;
+            font-size: 11px;
+            color: var(--neon-blue);
+            margin-bottom: 5px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .agent-text {
+            font-size: 13px;
+            font-style: italic;
+            color: var(--text-main);
+        }
+
+        /* Central Core */
+        .core-display {
             display: flex;
             flex-direction: column;
-            height: 100%;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            height: 100%;
+            position: relative;
+        }
+
+        .core-circle {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            border: 2px solid var(--neon-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
+        }
+
+        .core-inner {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 65, 0.2) 0%, transparent 70%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
         }
 
-        .ai-core {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 2px dashed rgba(0, 243, 255, 0.3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            margin-bottom: 30px;
-            transition: all 0.5s ease;
-        }
-        
-        .ai-core.analyzing {
-            border-color: var(--neon-red);
-            animation: spin 4s linear infinite;
-        }
-        .ai-core.vaccinating {
-            border-color: var(--neon-green);
-            border-style: solid;
-            box-shadow: 0 0 30px rgba(57, 255, 20, 0.4);
-        }
+        .core-text-main { font-family: 'VT323', monospace; font-size: 32px; color: var(--neon-green); }
+        .core-text-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); }
 
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        .ai-core-inner {
-            width: 80px;
-            height: 80px;
-            background: rgba(0, 243, 255, 0.1);
-            border-radius: 50%;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--neon-blue);
-            transition: all 0.5s ease;
-        }
-        
-        .ai-core.analyzing .ai-core-inner {
-            animation: reverse-spin 4s linear infinite;
-            color: var(--neon-red);
-            background: rgba(255, 51, 51, 0.1);
-        }
-        .ai-core.vaccinating .ai-core-inner {
-            color: #000;
-            background: var(--neon-green);
-        }
-
-        @keyframes reverse-spin { 100% { transform: rotate(-360deg); } }
-
-        .cloud-console {
+        /* Metrics Area */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
             width: 100%;
-            background: #000;
-            padding: 15px;
-            border-radius: 4px;
-            text-align: left;
-            font-size: 13px;
-            min-height: 120px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* GLOBAL MAP */
-        .fleet-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        .metric-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            text-align: center;
         }
 
-        .factory-node {
+        .metric-value { font-family: 'VT323', monospace; font-size: 24px; color: var(--neon-blue); }
+        .metric-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+
+        /* Chart Area (SVG) */
+        .chart-container {
+            width: 100%;
+            height: 150px;
+            margin-top: 15px;
+        }
+
+        .area-chart {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .chart-path {
+            fill: rgba(0, 255, 65, 0.1);
+            stroke: var(--neon-green);
+            stroke-width: 2;
+        }
+
+        /* Bottom Panels */
+        .bottom-panel {
+            grid-column: span 3;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .plant-status {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 4px;
+            padding: 10px;
+            background: var(--glass-bg);
             border-left: 3px solid var(--neon-green);
-            transition: all 0.3s ease;
         }
 
-        .factory-node .status {
-            color: var(--neon-green);
-            font-size: 12px;
-        }
+        .plant-name { font-size: 12px; font-weight: bold; }
+        .plant-state { font-size: 10px; font-family: 'VT323', monospace; color: var(--neon-green); }
 
-        .factory-node.updating {
-            border-color: #f59e0b;
-        }
-        .factory-node.updating .status {
-            color: #f59e0b;
-        }
-        
-        .factory-node.compromised {
-            border-color: var(--neon-red);
-        }
-        .factory-node.compromised .status {
-            color: var(--neon-red);
-        }
-
-        /* Action Buttons */
-        .controls {
+        .scan-line {
             position: absolute;
-            bottom: 30px;
-            right: 30px;
-            display: flex;
-            gap: 15px;
-            z-index: 100;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+            animation: scan 4s linear infinite;
+            z-index: 10;
+            opacity: 0.3;
+            pointer-events: none;
         }
-        button {
-            background: rgba(0, 0, 0, 0.8);
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            padding: 10px 20px;
-            font-family: inherit;
-            cursor: pointer;
-            border-radius: 4px;
-            font-weight: bold;
-            transition: all 0.2s;
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
         }
-        button:hover { background: rgba(0, 243, 255, 0.1); }
-        button#trigger-attack { border-color: var(--neon-red); color: var(--neon-red); }
-        button#trigger-attack:hover { background: rgba(255, 51, 51, 0.1); }
+
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            AxeGuard | PetroShield Dashboard
+        <div class="logo-area">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00FF41" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span class="logo-text">PETROSHIELD</span>
+            <span style="color:var(--text-muted); font-size: 10px;">AXEGUARD ENGINE v4.2.0</span>
         </div>
-        <div id="system-status" class="status-badge">SYSTEM STABLE</div>
+        <div class="system-status">
+            <div>NODES: <span style="color:var(--neon-green)">ONLINE (54)</span></div>
+            <div>THREAT: <span style="color:var(--neon-orange)">LOW</span></div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                STATUS: <span style="color:var(--neon-green)">STABLE</span>
+                <div class="status-dot"></div>
+            </div>
+        </div>
     </header>
 
-    <div class="main-content">
-        <!-- Panel 1: Edge Proxy -->
+    <div class="main-layout">
+        <!-- Panel Esquerdo: Telemetria Edge -->
         <div class="panel">
             <div class="panel-header">
-                <span>01. Edge Middleware (Fábrica Camaçari-01)</span>
-                <span style="color:var(--text-muted)">Live Traffic</span>
+                <span>INTELIGÊNCIA DE BORDA</span>
+                <span>REAL-TIME</span>
             </div>
-            <div class="panel-body" id="edge-log">
-                <div class="log-row">
-                    <span class="log-time">14:02:11</span>
-                    <span class="log-src">192.168.1.45</span> → <span class="log-dst">10.0.0.12 (SCADA)</span>
-                    <span class="log-action">ALLOW (Modbus)</span>
-                </div>
-                <div class="log-row">
-                    <span class="log-time">14:02:15</span>
-                    <span class="log-src">192.168.1.101</span> → <span class="log-dst">10.0.0.8 (HMI)</span>
-                    <span class="log-action">ALLOW (HTTP)</span>
-                </div>
-                <div class="log-row">
-                    <span class="log-time">14:02:18</span>
-                    <span class="log-src">192.168.1.20</span> → <span class="log-dst">10.0.0.44 (PLC)</span>
-                    <span class="log-action">ALLOW (S7)</span>
-                </div>
-                <!-- Dynamic logs go here -->
+            <div class="panel-content log-container" id="edge-telemetry">
+                <!-- Logs will be injected here -->
             </div>
         </div>
 
-        <!-- Panel 2: Cloud SOC -->
+        <!-- Painel Central: Orchestrator Core -->
         <div class="panel">
+            <div class="scan-line"></div>
             <div class="panel-header">
-                <span>02. AxeGuard Orchestrator (Multi-tenant Cloud)</span>
-                <span style="color:var(--neon-blue)">AI Active</span>
+                <span>ORQUESTRADOR AXEGUARD</span>
+                <span>SWARM ACTIVE</span>
             </div>
-            <div class="panel-body orchestrator-ui">
-                <div class="ai-core" id="ai-core">
-                    <div class="ai-core-inner" id="ai-icon">idle</div>
+            <div class="panel-content core-display">
+                <div class="core-circle">
+                    <div class="core-inner">
+                        <div class="core-text-sub">AUTO-ANALYSIS</div>
+                        <div class="core-text-main" id="core-mode">IDLE</div>
+                        <div class="core-text-sub">MODE: SWARM-SYNC</div>
+                    </div>
                 </div>
-                <div class="cloud-console" id="cloud-console">
-                    > AxeGuard Engine v4.2<br>
-                    > Waiting for telemetry from Edge Nodes...<br>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">0.8ms</div>
+                        <div class="metric-label">Latência Edge</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">99.9%</div>
+                        <div class="metric-label">Uptime Frota</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">R$ 4.2M</div>
+                        <div class="metric-label">Risco Mitigado</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <svg class="area-chart" id="threat-chart">
+                        <polyline class="chart-path" points="0,150 20,130 40,140 60,110 80,120 100,50 120,80 140,40 160,60 180,20 200,50 350,150"></polyline>
+                    </svg>
                 </div>
             </div>
         </div>
 
-        <!-- Panel 3: Global Fleet -->
+        <!-- Panel Direito: Agentes Swarm -->
         <div class="panel">
             <div class="panel-header">
-                <span>03. Fleet Immunization Status</span>
-                <span style="color:var(--neon-green)">100% Protected</span>
+                <span>AGENT TALK</span>
+                <span>COLLABORATION</span>
             </div>
-            <div class="panel-body">
-                <div class="fleet-list">
-                    <div class="factory-node" id="fac-1">
-                        <div>
-                            <strong>Fábrica Camaçari-01</strong><br>
-                            <span style="color:var(--text-muted);font-size:11px">Edge v2.1.0</span>
-                        </div>
-                        <div class="status">SECURE</div>
-                    </div>
-                    <div class="factory-node" id="fac-2">
-                        <div>
-                            <strong>Planta Feira de Santana</strong><br>
-                            <span style="color:var(--text-muted);font-size:11px">Edge v2.1.0</span>
-                        </div>
-                        <div class="status">SECURE</div>
-                    </div>
-                    <div class="factory-node" id="fac-3">
-                        <div>
-                            <strong>Complexo Logístico (SSA)</strong><br>
-                            <span style="color:var(--text-muted);font-size:11px">Edge v2.1.0</span>
-                        </div>
-                        <div class="status">SECURE</div>
-                    </div>
-                    <div class="factory-node" id="fac-4">
-                        <div>
-                            <strong>Polo Petroquímico (Sul)</strong><br>
-                            <span style="color:var(--text-muted);font-size:11px">Edge v2.1.0</span>
-                        </div>
-                        <div class="status">SECURE</div>
-                    </div>
-                </div>
+            <div class="panel-content" id="agent-talk">
+                <!-- Dialogue will be injected here -->
             </div>
         </div>
-    </div>
 
-    <div class="controls">
-        <button onclick="resetSim()">Reset</button>
-        <button id="trigger-attack" onclick="triggerDance()">Injetar Ransomware (Simular Dança)</button>
+        <!-- Barra Inferior: Frota -->
+        <div class="bottom-panel">
+            <div class="plant-status">
+                <div class="plant-name">Camaçari Complex</div>
+                <div class="plant-state">PROTECTED</div>
+            </div>
+            <div class="plant-status">
+                <div class="plant-name">Refinaria RLAM</div>
+                <div class="plant-state" style="color:var(--neon-orange)">SCANNING...</div>
+            </div>
+            <div class="plant-status">
+                <div class="plant-name">Polo Quí. Sul</div>
+                <div class="plant-state">PROTECTED</div>
+            </div>
+            <div class="plant-status">
+                <div class="plant-name">Poço Tupi-10</div>
+                <div class="plant-state">IMMUNE</div>
+            </div>
+        </div>
     </div>
 
     <script>
-        const edgeLog = document.getElementById('edge-log');
-        const cloudConsole = document.getElementById('cloud-console');
-        const aiCore = document.getElementById('ai-core');
-        const aiIcon = document.getElementById('ai-icon');
-        const statusBadge = document.getElementById('system-status');
+        const BFF_URL = 'http://localhost:3001/api/v1';
         
-        let logInterval;
-
-        function addNormalLog() {
-            const time = new Date().toLocaleTimeString('pt-BR');
-            const row = document.createElement('div');
-            row.className = 'log-row';
-            row.innerHTML = `<span class="log-time">${time}</span><span class="log-src">192.168.1.${Math.floor(Math.random()*100)}</span> → <span class="log-dst">10.0.0.${Math.floor(Math.random()*50)} (SCADA)</span><span class="log-action">ALLOW</span>`;
-            edgeLog.appendChild(row);
-            if(edgeLog.children.length > 8) edgeLog.removeChild(edgeLog.firstChild);
-        }
-
-        function startNormalTraffic() {
-            logInterval = setInterval(addNormalLog, 1500);
-        }
-
-        async function triggerDance() {
-            document.getElementById('trigger-attack').disabled = true;
-            
-            // 1. Edge Detects Attack
-            setTimeout(() => {
-                const time = new Date().toLocaleTimeString('pt-BR');
-                const row = document.createElement('div');
-                row.className = 'log-row threat';
-                row.innerHTML = `<span class="log-time">${time}</span><span>192.168.1.133</span> → <span>10.0.0.1 (SCADA DB)</span><span class="log-action">BLOCK (Ransomware Lateral Move)</span>`;
-                edgeLog.appendChild(row);
+        const edgeContainer = document.getElementById('edge-telemetry');
+        const agentContainer = document.getElementById('agent-talk');
+        const coreMode = document.getElementById('core-mode');
+        
+        async function fetchTelemetry() {
+            try {
+                const res = await fetch(`${BFF_URL}/telemetry`);
+                const data = await res.json();
                 
-                document.getElementById('fac-1').className = 'factory-node compromised';
-                document.getElementById('fac-1').querySelector('.status').innerText = 'ISOLATED';
-                statusBadge.className = 'status-badge alert';
-                statusBadge.innerText = 'THREAT DETECTED';
-            }, 1000);
-
-            // 2. Cloud Escalation
-            setTimeout(() => {
-                aiCore.className = 'ai-core analyzing';
-                aiIcon.innerText = 'TTP';
-                cloudConsole.innerHTML += `<span style="color:var(--neon-red)">> [ALERT] Camaçari-01: SMB Exploit Attempt blocked.<br>> Escalating Payload to AI Core for TTP Extraction...</span><br>`;
-            }, 2500);
-
-            setTimeout(() => {
-                cloudConsole.innerHTML += `> Pattern Identified: LockBit v3.0 Variant.<br>> Generating Global Immunization Rule Hash...<br>`;
-            }, 4500);
-
-            // 3. Global Vaccination
-            setTimeout(() => {
-                aiCore.className = 'ai-core vaccinating';
-                aiIcon.innerHTML = '&#10003;'; // Checkmark
-                cloudConsole.innerHTML += `<span style="color:var(--neon-green)">> Hash generated. Broadcasting to Multi-tenant Edge nodes...</span><br>`;
-                
-                const nodes = ['fac-2', 'fac-3', 'fac-4'];
-                nodes.forEach(id => {
-                    document.getElementById(id).className = 'factory-node updating';
-                    document.getElementById(id).querySelector('.status').innerText = 'UPDATING RULESET...';
+                data.logs.forEach(log => {
+                    const entry = document.createElement('div');
+                    entry.className = `log-entry ${log.level.toLowerCase()}`;
+                    entry.innerHTML = `[${log.timestamp.split('T')[1].split('.')[0]}] [${log.node}] ${log.message}`;
+                    edgeContainer.prepend(entry);
                 });
-            }, 6000);
 
-            // 4. Immune & Reset
-            setTimeout(() => {
-                const nodes = ['fac-2', 'fac-3', 'fac-4'];
-                nodes.forEach(id => {
-                    document.getElementById(id).className = 'factory-node';
-                    document.getElementById(id).querySelector('.status').innerText = 'IMMUNE (SECURE)';
+                if (edgeContainer.children.length > 25) {
+                    edgeContainer.removeChild(edgeContainer.lastChild);
+                }
+            } catch (e) {
+                console.warn("BFF Not reachable. Falling back to internal mock.");
+                simulateLocal();
+            }
+        }
+
+        async function fetchSwarm() {
+            try {
+                const res = await fetch(`${BFF_URL}/swarm/state`);
+                const data = await res.json();
+                
+                agentContainer.innerHTML = '';
+                data.active_agents.forEach(agent => {
+                    const card = document.createElement('div');
+                    card.className = 'agent-talk-card';
+                    card.innerHTML = `
+                        <span class="agent-name">${agent.id} | LOAD: ${agent.load}%</span>
+                        <span class="agent-text">"${agent.dialogue.text}"</span>
+                    `;
+                    agentContainer.appendChild(card);
                 });
-                
-                document.getElementById('fac-1').className = 'factory-node';
-                document.getElementById('fac-1').querySelector('.status').innerText = 'CLEANSED (SECURE)';
-                
-                statusBadge.className = 'status-badge';
-                statusBadge.innerText = 'SYSTEM STABLE';
-                cloudConsole.innerHTML += `> <span style="color:var(--neon-green)">Fleet Immunization 100% Complete. Operations preserved.</span><br>`;
-                
-                document.getElementById('trigger-attack').disabled = false;
-            }, 8500);
+            } catch (e) {}
         }
 
-        function resetSim() {
-            location.reload();
+        function simulateLocal() {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry info';
+            entry.innerHTML = `[${new Date().toLocaleTimeString()}] [LOCAL_MOCK] Telemetria em espera (BFF Desconectado)`;
+            edgeContainer.prepend(entry);
         }
 
-        startNormalTraffic();
+        function updateChart() {
+            const chart = document.getElementById('threat-chart');
+            const poly = chart.querySelector('polyline');
+            let points = "0,150 ";
+            for(let i=1; i<=15; i++) {
+                points += `${i*25},${Math.floor(Math.random()*100) + 20} `;
+            }
+            points += "400,150";
+            poly.setAttribute('points', points);
+        }
+
+        setInterval(fetchTelemetry, 2000);
+        setInterval(fetchSwarm, 4000);
+        setInterval(updateChart, 3000);
+
     </script>
 </body>
 </html>
