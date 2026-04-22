@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=VT323&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-hacker: "VT323", monospace;
+  --color-tui-bg: #050505;
+  --color-tui-card: rgba(20, 21, 24, 0.7);
+  --color-tui-border: rgba(45, 46, 50, 0.5);
+  --color-neon-matrix: #00FF41;
+  --color-petro-orange: #FF6200;
+  --color-terminal-cyan: #00FFFF;
+  --color-deep-void: #0A0A0A;
+  --color-tui-matrix: #00FF41;
+  --color-tui-orange: #FF6200;
+  --color-tui-cyan: #00FFFF;
+  --color-tui-red: #ef4444;
+  --color-tui-text-primary: #e1e1e6;
+  --color-tui-text-secondary: #8b8d98;
+}
+
+/* Scoped under .module-vault to avoid global pollution */
+.module-vault {
+  background: var(--color-tui-bg);
+  color: var(--color-tui-text-primary);
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.module-vault .glass-panel {
+  background: rgba(10, 10, 10, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+}
+
+.module-vault .acrylic-card {
+  background: var(--color-tui-card);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-tui-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+.module-vault .glow-text-green { text-shadow: 0 0 10px rgba(0, 255, 65, 0.5); }
+.module-vault .glow-text-orange { text-shadow: 0 0 10px rgba(255, 98, 0, 0.5); }
+.module-vault .glow-text-cyan { text-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+.module-vault .glow-text-red { text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+
+.module-vault .tui-mono { font-family: "JetBrains Mono", monospace; font-size: 0.875rem; letter-spacing: -0.02em; }
+.module-vault .hacker-font { font-family: "VT323", monospace; font-size: 1.125rem; }
+
+.module-vault .tui-status-badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  border: 1px solid;
+  border-radius: 2px;
+}
+
+.module-vault .tui-cursor {
+  display: inline-block;
+  width: 0.5rem;
+  height: 1rem;
+  background: var(--color-neon-matrix);
+  vertical-align: middle;
+  margin-left: 0.25rem;
+  box-shadow: 0 0 8px #00FF41;
+  animation: vault-blink 1s step-end infinite;
+}
+
+@keyframes vault-blink {
+  from, to { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.module-vault .parallax-layer {
+  position: absolute;
+  inset: -10%;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 2px 2px, rgba(0, 255, 65, 0.05) 1px, transparent 0);
+  background-size: 32px 32px;
+}
+
+.module-vault .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.module-vault .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.module-vault .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(45, 46, 50, 0.5);
+  border-radius: 9999px;
+}
+.module-vault .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 65, 0.3);
+}

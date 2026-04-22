@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=VT323&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "Courier New", Courier, monospace;
+  --color-bg-dark: #05070a;
+  --color-accent-cyan: #00f2ff;
+  --color-accent-green: #39ff14;
+  --color-accent-red: #ff3131;
+  --color-glass: rgba(10, 25, 41, 0.7);
+  --color-glass-border: rgba(0, 242, 255, 0.2);
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.75rem;
+}
+
+/* Scoped under .module-beacon to avoid global pollution */
+.module-beacon {
+  background: var(--color-bg-dark);
+  color: #e0fbfc;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.module-beacon .glass-panel {
+  background: var(--color-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.module-beacon .neon-glow-cyan {
+  box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+  border-color: rgba(0, 242, 255, 0.5);
+}
+
+.module-beacon .neon-glow-green {
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+  border-color: rgba(57, 255, 20, 0.5);
+}
+
+.module-beacon .circuit-bg {
+  background-image: radial-gradient(circle at 2px 2px, rgba(0, 242, 255, 0.05) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+
+.module-beacon .glow-overlay {
+  background: radial-gradient(circle at 50% 50%, rgba(0, 10, 30, 0) 0%, rgba(0, 0, 0, 0.8) 100%);
+}
