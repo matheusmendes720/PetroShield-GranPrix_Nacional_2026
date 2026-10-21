@@ -1,0 +1,355 @@
+================================================================================
+ROTEIRO DE APRESENTACAO - PITCH AXEGUARD / PETROSHIELD - SENAI GP 2026
+Deck de 17 slides | Versao 2.0 (pos-SOC Playground + 2 infograficos SOC)
+================================================================================
+
+LINK OFICIAL (GitHub Pages, sempre o mesmo):
+https://matheusmendes720.github.io/PetroShield-GranPrix_Nacional_2026/
+
+ARQUIVO-FONTE DO DECK : 06_Entregas/pitch_deck/index.html
+REPUBLISH (mesmo link) : bash scripts/deploy_pitch_deck_pages.sh
+
+CONTROLES DO DECK
+  setas esquerda/direita .... navegar entre slides
+  F11 ........................ tela cheia
+  clique no deck ............ avanca um slide
+  HOME / END ................ primeiro / ultimo slide
+
+TEMPO TOTAL DO CORTE ..... 5 min 20 s (falando em ritmo de apresentacao)
+  bloco narrado ............ slides 01 a 13 e slide 17  = 4 min 55 s
+  bloco de apoio ........... slides 14, 15 e 16 = +25 s se a banca pedir
+  RITMO: ~2,5 palavras por segundo. CAIXA ALTA = enfase (punch).
+
+REGRA DE OURO
+  Frase-ancora (slide 08) e tag-line (slide 17) sao ditas EXATAMENTE uma vez.
+  Nao citar o nome do fornecedor comprometido. Dizer "um fornecedor
+  norte-americano de servicos geofisicos".
+  Dois ROIs nunca no mesmo slide: 6,4x no slide 12 | 47x no slide 13.
+
+================================================================================
+SLIDE 01 / 17 - HOOK: 197 DIAS .............................. [0:00 - 0:15]
+================================================================================
+NA TELA .... Contador "197 DIAS" em matrix-green + logo PetroShield + 4 linhas:
+             197 dias para detectar | Brasil 322 dias | atacante tem 197 dias
+             | custo medio US$ 5M por incidente.
+
+FALA
+  "Cento e noventa e sete dias. E o tempo que o oleo e gas leva para
+   DETECTAR um ataque. No Brasil, trezentos e vinte e dois. Pior que a media.
+   E enquanto isso, o atacante tem cento e noventa e sete dias de janela.
+   Quanto do pre-sal brasileiro ja saiu sem voce saber?"
+
+CUE ....... [GLOW PULSE] no 197 enquanto o numero conta de 0 a 197.
+NOTA ..... Se perguntarem a fonte: 19 casos reais, tempo medio de deteccao
+           publicado do setor O&G. Nao e estimativa nossa.
+
+================================================================================
+SLIDE 02 / 17 - HOOK DO CASO-ANCORA ....................... [0:15 - 0:30]
+================================================================================
+NA TELA .... "BACIA DE CAMPOS, NOVEMBRO 2025" + 3 linhas: fornecedor legitimo,
+             credenciais validas, acesso autorizado.
+
+FALA
+  "Novembro de dois mil e vinte e cinco. Bacia de Campos - berco da
+   engenharia offshore brasileira. Um fornecedor norte-americano de servicos
+   geofisicos, COMPROMETIDO. Noventa gigabytes de sismica vazaram em setenta
+   e duas horas. Por uma VPN legitima. Com credenciais validas."
+
+CUE ....... [SLIDE-UP] no titulo. Nada de animacao extra - o caso fala sozinho.
+
+================================================================================
+SLIDE 03 / 17 - O PARADOXO DA XR INDUSTRIAL ................ [0:30 - 0:45]
+================================================================================
+NA TELA .... Coluna GANHOS (mao livres, treinamento imersivo, compliance por
+             sensor) | VIDEO do chip AXI (loop) | coluna PERDAS (cinco vetores,
+             credenciais digitadas dentro do VR, vendor unico).
+             Rodape: "XR industrial e a maior exposicao da proxima decada".
+
+FALA
+  "Smart glasses resolvem um problema: maos livres, decisao em tempo real.
+   Mas criam CINCO novos. Cada camada de conveniencia e uma nova superficie
+   de ataque. XR industrial e a maior exposicao da proxima decada."
+
+CUE ....... O video do chip AXI roda em loop (muted). [PAUSE 0.5s] antes da
+           ultima frase.
+NOTA ..... O video e' o unico elemento animado do slide: deixe rodar 3 s antes
+           de falar a frase de fechamento.
+
+================================================================================
+SLIDE 04 / 17 - CINCO SUPERFICIES DE ATAQUE ................ [0:45 - 1:00]
+================================================================================
+NA TELA .... 5 cards: 01 Supply Chain | 02 Endpoint XR | 03 OAuth Furado |
+             04 Proxy Exfiltracao | 05 Paralisia Operacional.
+             Rodape: Bacia de Campos acumulou os cinco; firewalls classicos
+             nao configurados; atores state-sponsored + orgs criminais.
+
+FALA
+  "Um - Supply chain. Dois - Endpoint. Tres - OAuth. Quatro - proxy de
+   exfiltracao. Cinco - paralisia operacional. O caso de setenta e duas horas
+   ACUMULOU os cinco. E os firewalls classicos? Nem configurados para esse
+   cenario."
+
+CUE ....... [GLOW PULSE] em cada numeral, um a um, nao todos juntos.
+
+================================================================================
+SLIDE 05 / 17 - BACIA DE CAMPOS: CORACAO NARRATIVO ........ [1:00 - 2:00]
+================================================================================
+NA TELA .... 3 KPIs (90 GB exfiltrados | 72 horas sem deteccao | 90 dias ate
+             descoberta) + timeline de 5 nos:
+             T-30 PHISHING SETUP | T-7 DISCOVERY | T-0 EXFILTRACAO INICIA
+             (API legacy, sem 2FA, sem geofencing, 50 MB/request, base64,
+             DoH para VPS na Moldavia) | T+72h EXFILTRACAO CONCLUIDA
+             (sismica 3D, mapas de reservatorios) | T+90d DESCOBERTA POR
+             TERCEIROS (vendedor no dark web, US$ 15-25M).
+             Faixa: "E nos nao vimos. - O que sai pela SUA refinaria amanha?"
+
+FALA
+  "T-menos trinta dias. Phishing contra o admin de TI do fornecedor - e-mail
+   falso da Microsoft, MFA reset roubado em tempo real.
+   T-menos sete dias. Credenciais da VPN Petrobras em texto claro, num arquivo
+   compartilhado por doze funcionarios. Senha unica, sem MFA individual.
+   T-zero. Exfiltracao comeca. Script automatizado conecta a API legacy - sem
+   dois fatores, sem geofencing. Cinquenta megabytes por request, em base64,
+   via DNS-over-HTTPS, para uma VPS na Moldavia."
+
+  [PAUSE 0.5s]
+
+  "T-mais setenta e duas horas. Noventa gigabytes: mapas de reservatorios
+   pre-sal, sismica 3D de Campos e Santos.
+   T-mais noventa dias. Descoberta por terceiros - vendedor no dark web.
+   Prejuizo: quinze a vinte e cinco milhoes de dolares."
+
+  [PAUSE dramatica 1.0s - voz mais baixa]
+
+  "E nos nao vimos. A proxima pergunta e': o que sai pela SUA refinaria
+   amanha?"
+
+CUE ....... Contadores 90/72/90 animam em sequencia. Timeline aceso no tempo.
+NOTA ..... Este e' o slide que carrega o argumento inteiro. Se o tempo apertar,
+           NAO corte este. Corte o 06 e o 07.
+
+================================================================================
+SLIDE 06 / 17 - VULNERABILIDADES DA INDUSTRIA NACIONAL .... [2:00 - 2:20]
+================================================================================
+NA TELA .... Coluna esquerda: SETOR O&G BRASILEIRO - 10 casos ativos (OceanPact,
+             Oceanica, REPETRO, fornecedor sismica). Coluna direita: PETROBRAS
+             SUPERFICIE - 62% via fornecedor (API legacy, VPN federal, DLP
+             signature cego a chunked DoH, SOC reativo MTTD 197 dias).
+             Rodape: 62% dos breaches O&G globais vem de fornecedor.
+
+FALA
+  "Esse caso nao e' isolado. Dez casos ativos no setor. Cada um HERDOU
+   credenciais validas. Cada um atravessou perimetro confiavel. Sessenta e dois
+   por cento dos breaches de oleo e gas no mundo vem de fornecedor. E o vetor
+   padrao da industria."
+
+CUE ....... Sem animacao de numeros. Tom direto, ritmo rapido.
+
+================================================================================
+SLIDE 07 / 17 - CADA VETOR TEM RESPOSTA ................... [2:20 - 2:40]
+================================================================================
+NA TELA .... 5 linhas vetor > camada > impacto:
+   01 Supply chain ........ Zero Trust + token de contrato (revogacao atrelada)
+   02 Endpoint XR ......... MDM + TPM 2.0 (ArborXR + Hexnode)
+   03 OAuth furado ........ Device Flow + PKCE (biometria + TPM binding)
+   04 Proxy exfiltracao ... DLP middleware + NLP + UEBA (regex Petrobras)
+   05 Paralisia ........... plano de continuidade + backup imutavel (implantado)
+   Fecho: "O gap nao e' tecnica - e' composicao."
+
+FALA
+  "Cada vetor tem resposta. Supply chain: Zero Trust com revogacao atrelada
+   a contrato. Endpoint: MDM e TPM. OAuth: Device Flow com PKCE. Exfiltracao:
+   DLP com NLP e UEBA. O gap nao e' tecnica - e' composicao. E composicao e'
+   o que entregamos."
+
+CUE ....... Cada linha acende junto com o nome da camada (leia a ordem da tela).
+
+================================================================================
+SLIDE 08 / 17 - A PROPOSTA UNICA AXEGUARD .................. [2:40 - 3:05]
+================================================================================
+NA TELA .... 4 pilares em cards: QR Code que autentica | SOC que detecta em
+             12 segundos | DLP que protege o dado | Zero Trust que assume breach.
+             Box: implementavel em 90 dias, auditavel peca por peca, COTS real,
+             sem lock-in.
+
+FALA
+  "Tres solucoes de ponta. Uma estrategia. E Zero Trust como POSTURA, nao como
+   feature. SOC agentico ANTIFRAGIL: cada incidente refina o modelo. O atacante
+   evolui? A defesa EVOLUI MAIS RAPIDO."
+
+  "QR Code que autentica. SOC que detecta em 12 segundos. DLP que protege o
+   dado. Zero Trust que assume breach. Tudo isso composto sobre tecnologia de
+   mercado real. Implementavel em 90 dias. Auditavel peca por peca.
+   Isso e' AxeGuard."
+
+CUE ....... [SLIDE-UP] nos 4 pilares + [GLOW] no "AxeGuard".
+NOTA ..... A frase-ancora inteira e' dita uma unica vez, sem parafrasear.
+
+================================================================================
+SLIDE 09 / 17 - SOC AGENTICO PLAYGROUND (respiro visual) .. [3:05 - 3:15]
+================================================================================
+NA TELA .... Imagem: Agentic AI SOC Playground - arquitetura Multi-Agent
+             LangGraph (data ingestion, subgrafos Monitor/Detect/Analyse,
+             incident response, hunt, memoria externa, observabilidade).
+             Legenda: "Agentic AI SOC Playground - Multi-Agent LangGraph".
+
+FALA
+  "Este e' o motor por tras do SOC. Agentes em grafo: um observa, outro
+   detecta, outro analisa, outro responde. Todos compartilham memoria."
+
+CUE ....... Sem efeito. Deixe a imagem respirar - e' o respiro visual do deck.
+NOTA ..... Se o projetor demorar, pule este slide sem culpa: ele existe para
+           dar respiro visual antes dos dois infograficos.
+
+================================================================================
+SLIDE 10 / 17 - DETECCAO E RESPOSTA AUTONOMA (infografico) . [3:15 - 3:30]
+================================================================================
+NA TELA .... Infografico: Deteccao e Resposta Autonoma do SOC.
+
+FALA
+  "Aqui esta o ciclo fechado: detectar, correlacionar, decidir e CONTER.
+   O SOC nao so avisa - ele age. Automaticamente, dentro do que a politica
+   permite. E cada acao volta como aprendizado."
+
+CUE ....... Aponte para o ciclo no infografico enquanto fala. Sem numeros novos.
+NOTA ..... Nao invente metricas aqui: o slide mostra o processo, nao o numero.
+           O numero (12 segundos vs 197 dias) ja foi dito no slide 08.
+
+================================================================================
+SLIDE 11 / 17 - CORE: O PROXY QUE SEGURA TUDO ............. [3:30 - 3:50]
+================================================================================
+NA TELA .... Diagrama do proxy de Camada 7 + 3 cards:
+             DLP Engine (FastAPI, spaCy, regex Petrobras)
+             Zero Trust L7 (PKCE, TPM 2.0, MDM)
+             SOC Agentico (LangGraph, MITRE ATT&CK, auto-quarantine)
+             Fecho: "DLP e SOC nao sao duas camadas - sao o mesmo produto".
+
+FALA
+  "Camada 7: o proxy que segura tudo. O DLP higieniza antes da LLM - CPF,
+   plataforma e senha virados token. Zero Trust segmenta por classe de dado:
+   SCADA bloqueado, engenharia em read-only, administrativo monitorado. Nenhum
+   PLC aceita sessao de IT. E o SOC le tudo que passa pelo proxy, correlaciona
+   com UEBA e MITRE ATT&CK e responde sozinho. De cento e noventa e sete dias
+   para doze segundos. DLP e SOC nao sao duas camadas - sao o mesmo produto."
+
+CUE ....... [OVERVIEW] - tom didatico, nao de pitch. Ensine.
+
+================================================================================
+SLIDE 12 / 17 - O QUE A JANELA DE 197 DIAS CUSTA ........... [3:50 - 4:10]
+================================================================================
+NA TELA .... 5,9 TB de exposicao a cada 197 dias | Setup ano 0 R$ 2,5M |
+             Recorrente R$ 5,04M/ano | custo evitado em 3 anos R$ 120M |
+             TCO 3 anos R$ 18,86M | beneficio liquido R$ 101,1M |
+             ROI 3 anos 6,4x | payback 2,3 meses | 1 incidente evitado = 9,9x.
+             Rodape: cenario conservador ROI 2,4x / payback 6 meses.
+
+FALA
+  "Agora, o custo da janela. Cinco virgula nove terabytes de exposicao a cada
+   cento e noventa e sete dias. TCO de tres anos: dezoito virgula oito e seis
+   milhoes. Custo evitado: cento e vinte milhoes. ROI de seis virgula quatro.
+   Payback em dois virgula tres meses. Um unico incidente evitado ja vale nove
+   virgula nove vezes o investimento."
+
+CUE ....... [BUILD] - confiante. Cite so o ROI 6,4x aqui.
+NOTA ..... O ROI de exposicao (47x) NAO e' falado neste slide - ele fica no 13.
+
+================================================================================
+SLIDE 13 / 17 - CONVITE: PILOTO 90 DIAS .................... [4:10 - 4:35]
+================================================================================
+NA TELA .... 4 fases do piloto (Diagnostico / Setup / Operacao / Comparacao),
+             badges SLSA L3, NIST 800-207, LGPD, ANP, "Nao e' vaporware",
+             box ROI de exposicao 47x, proximo passo: reuniao executiva de 1h
+             com o CISO.
+
+FALA
+  "SLSA L3. NIST 800-207. LGPD. ANP. Nao e' vaporware.
+   ROI de exposicao: quarenta e sete vezes.
+
+   Piloto 90 dias. Uma refinaria. Risco zero. Sem assinatura ate vermetricas
+   comparativas com e sem o AxeGuard. Proximo passo: uma reuniao executiva
+   de uma hora com o CISO."
+
+CUE ....... [SLIDE-UP] no card do piloto. [PAUSE 0.5s] antes do proximo passo.
+
+================================================================================
+SLIDE 14 / 17 - APENDICE: EVIDENCIA ........................ [4:35 - 4:40]
+================================================================================
+NA TELA .... 19 casos reais, 8 padroes sistemicos, matriz padrao > mecanismo.
+
+FALA (so se a banca perguntar "de onde veio essa arquitetura?")
+  "Dezenove casos reais. Oito padroes sistemicos. Cada padrao mapeado para um
+   mecanismo. Zero vetor sem cobertura."
+
+================================================================================
+SLIDE 15 / 17 - APENDICE: ANTES x DEPOIS .................... [4:40 - 4:45]
+================================================================================
+NA TELA .... Comparativo em linhas (197 dias > 12 segundos | 90 GB > 0 |
+             US$ 25M > 0 | 10 dias de offline > 0).
+
+FALA (so se a banca perguntar "qual a diferenca real, em numero?")
+  "De cento e noventa e sete dias para doze segundos. De noventa gigabytes
+   para zero. De vinte e cinco milhoes de dolares para zero."
+
+================================================================================
+SLIDE 16 / 17 - APENDICE: MERCADO .......................... [4:45 - 4:50]
+================================================================================
+NA TELA .... TAM US$ 32bi / SAM US$ 8bi / SOM US$ 800M (2,5% do TAM) +
+             comparativo de custo por ano (custom ~R$ 50M+ | Palo Alto +
+             CrowdStrike + Splunk ~R$ 30M/ano | Defender + SIEM ~R$ 15M/ano |
+             AXEGUARD R$ 5-10M/ano) + chips: Petrobras R$ 600bi+, Shell/BP/
+             Total/Equinor, cobertura XR + DLP Petrobras, setup em 90 dias.
+
+FALA (so se a banca perguntar "isso e' um negocio?")
+  "Trinta e dois bilhoes de dolares de mercado, entrando em um espaco que
+   nenhum concorrente enterprise cobre - por um terco do preco. Nao precisamos
+   de mercado grande: precisamos de um recorte que ninguem atende."
+
+================================================================================
+SLIDE 17 / 17 - ENCERRAMENTO: SOC AGENTICO, RESPOSTA AUTONOMA  [4:50 - 5:05]
+================================================================================
+NA TELA .... Infografico final: SOC Agentico - Resposta Autonoma.
+
+FALA
+  "E assim que fecha o ciclo: um proxy que segura tudo, um SOC que responde
+   sozinho, e um time que aprende com cada incidente.
+
+   De cento e noventa e sete dias para doze segundos.
+   De cinco milhoes de dolares de incidente para um real.
+
+   [PAUSE 1.0s]
+
+   O pre-sal e' nosso. Vamos protege-lo."
+
+CUE ....... [GLOW PULSE] na tag-line. [FADE TO BLACK] em 3 s com o contato
+           na tela: matheus@pessoferndeaxe.pj.br
+NOTA ..... A tag-line e' dita uma unica vez, ritmo cerimonial (mais lento que o
+           resto). Nao repetir, nao encurtar.
+           ATENCAO: se a banca ja ouviu a tag-line no video, aqui diga a
+           versao curta - "O pre-sal e' nosso. Vamos protege-lo." - e pule a
+           primeira frase para nao repetir o efeito.
+
+================================================================================
+PERGUNTAS QUE A BANCA PROVAVELMENTE FAZ (respostas de 20 s)
+================================================================================
+"Vocos tem produto rodando?"
+   "Temos o DLP proxy rodando em FastAPI, com regex Petrobras e transformacao
+    atomica. O que estou mostrando hoje e' a demonstracao do corte de camada 7
+    do produto completo."
+
+"Por que a Petrobras nao ja faz isso?"
+   "O que existe la e' reativo: API legacy sem 2FA, VPN com token herdado, DLP
+    cego a chunked DoH, SOC com MTTD de 197 dias. Nenhum produto enterprise
+    cobre XR + DLP Petrobras-specific ao mesmo tempo."
+
+"Quanto custa implementar?"
+   "Setup de R$ 2,5 milhoes e R$ 5,04 milhoes por ano, com payback de dois
+    virgula tres meses. O piloto de 90 dias e' sem assinatura ate vermetricas
+    comparativas."
+
+"Isso e' so slide?"
+   "Nao. O repositorio do projeto tem o proxy DLP rodando, os 19 casos de
+    evidencia e o modelo economico completo. E' open para a banca auditar."
+
+================================================================================
+FIM
+================================================================================
