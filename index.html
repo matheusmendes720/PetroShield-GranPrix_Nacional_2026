@@ -1912,11 +1912,11 @@ button { font-family: inherit; cursor: pointer; }
 .slide[data-slide="7"],
 .slide[data-slide="8"],
 .slide[data-slide="11"],
-.slide[data-slide="12"],
 .slide[data-slide="13"],
 .slide[data-slide="14"],
 .slide[data-slide="15"],
-.slide[data-slide="16"] {
+.slide[data-slide="16"],
+.slide[data-slide="17"] {
   background: var(--bg-iridescent-glow), var(--bg-primary);
 }
 .slide[data-slide="5"] { background: var(--bg-danger-glow), var(--bg-primary); }
@@ -2596,6 +2596,230 @@ button { font-family: inherit; cursor: pointer; }
   text-shadow: 0 0 16px rgba(0, 255, 65, 0.4);
 }
 
+/* =============================================================
+   18. LEAN CANVAS — MODELO DE VIABILIDADE ECONÔMICA
+   Introduz o bloco financeiro. Números de 19_VIABILIDADE_ECONOMICA_MODELO.md
+   ============================================================= */
+.lc {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--s-8) var(--s-4);
+}
+.lc-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-6);
+  margin-bottom: var(--s-4);
+}
+.lc-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--brand-cyan);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: var(--s-2);
+}
+.lc-eyebrow::before { content: '$ '; color: var(--brand); }
+.lc-title {
+  font-family: var(--font-mono);
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--text-primary);
+  text-shadow: 0 0 26px rgba(0, 255, 65, 0.28);
+}
+
+/* Faixa de KPIs — a conta que ninguém faz */
+.lc-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: var(--s-4);
+}
+.lc-kpi {
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, var(--brand-faint) 0%, var(--bg-glass) 80%);
+  border: 1px solid var(--border-brand);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lc-kpi--loss { border-color: rgba(255, 71, 87, 0.4); background: linear-gradient(180deg, rgba(255,71,87,0.12) 0%, var(--bg-glass) 80%); }
+.lc-kpi--gain { border-color: var(--border-gold); background: linear-gradient(180deg, rgba(212,160,23,0.14) 0%, var(--bg-glass) 80%); }
+.lc-kpi .v {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--brand);
+  text-shadow: 0 0 18px rgba(0, 255, 65, 0.35);
+}
+.lc-kpi--loss .v { color: var(--danger); text-shadow: 0 0 18px rgba(255, 71, 87, 0.35); }
+.lc-kpi--gain .v { color: var(--brand-gold-bright); text-shadow: 0 0 18px rgba(255, 200, 61, 0.4); }
+.lc-kpi .k {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* Grade do canvas — 5 colunas + faixa de custo/receita */
+.lc-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: 1fr auto;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+.lc-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+.lc-block {
+  position: relative;
+  padding: 12px 13px 13px;
+  border-radius: 10px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+.lc-block::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 12px; right: 12px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--brand) 50%, transparent 100%);
+  opacity: 0.75;
+}
+.lc-block--hl { border-color: var(--border-brand); background: linear-gradient(180deg, var(--brand-faint-2) 0%, var(--bg-glass) 75%); }
+.lc-block--hl::before { background: linear-gradient(90deg, transparent 0%, var(--brand-gold-bright) 50%, transparent 100%); }
+.lc-block--cost { border-color: rgba(255, 71, 87, 0.35); }
+.lc-block--cost::before { background: linear-gradient(90deg, transparent 0%, var(--danger) 50%, transparent 100%); }
+.lc-block--rev { border-color: var(--border-gold); }
+.lc-block--rev::before { background: linear-gradient(90deg, transparent 0%, var(--brand-gold-bright) 50%, transparent 100%); }
+
+.lc-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--brand-text);
+}
+.lc-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  line-height: 1.15;
+  margin-top: -6px;
+}
+.lc-block--hl .lc-name { color: var(--brand-gold-bright); }
+.lc-block--cost .lc-name { color: var(--danger); }
+.lc-block--rev .lc-name { color: var(--brand-gold-bright); }
+
+.lc-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lc-list li {
+  position: relative;
+  padding-left: 13px;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.lc-list li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--brand);
+  font-weight: 700;
+}
+.lc-list li b { color: var(--text-primary); font-weight: 700; }
+.lc-list li .hl { color: var(--brand-gold-bright); font-weight: 700; }
+.lc-list li .warn { color: var(--brand-orange); font-weight: 700; }
+
+/* Bloco de valor único — o coração do canvas */
+.lc-uvp { gap: 10px; justify-content: center; }
+.lc-uvp .big {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.28;
+  color: var(--text-primary);
+}
+.lc-uvp .big em {
+  font-style: normal;
+  color: var(--brand);
+  text-shadow: 0 0 16px rgba(0, 255, 65, 0.4);
+}
+.lc-uvp .net {
+  margin-top: 4px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: rgba(212, 160, 23, 0.12);
+  border: 1px solid var(--border-gold);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brand-gold-bright);
+  text-align: center;
+  text-shadow: 0 0 12px rgba(255, 200, 61, 0.4);
+}
+
+/* Faixa inferior: custo x receita */
+.lc-bottom {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.lc-bottom .lc-block { flex-direction: row; align-items: center; gap: 18px; }
+.lc-bottom .lc-block .lc-cols {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 190px;
+}
+.lc-bottom .lc-list { flex-direction: row; gap: 20px; flex: 1; }
+.lc-bottom .lc-list li { font-size: 12.5px; }
+
+/* Rodapé — impacto no operador */
+.lc-foot {
+  margin-top: var(--s-3);
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  padding: 11px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--border-gold);
+  background: linear-gradient(90deg, rgba(212, 160, 23, 0.12) 0%, rgba(0, 255, 65, 0.06) 100%);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+.lc-foot .accent { color: var(--brand-gold-bright); font-weight: 800; }
+.lc-foot .ico { font-size: 22px; line-height: 1; }
+
 </style>
 </head>
 <body>
@@ -3140,8 +3364,167 @@ button { font-family: inherit; cursor: pointer; }
     </div>
   </section>
 
-  <!-- =============== SLIDE 12 — Custo de Oportunidade (20s) =============== -->
+  <!-- =============== SLIDE 12 — LEAN CANVAS · MODELO DE VIABILIDADE ECONÔMICA =============== -->
   <section class="slide" data-slide="12">
+    <div class="slide-content lc">
+      <div class="lc-head anim anim-1">
+        <div>
+          <div class="lc-eyebrow">MODELO DE VIABILIDADE ECONÔMICA · INTRODUÇÃO</div>
+          <h2 class="lc-title">LEAN CANVAS — ONDE O DINHEIRO ENTRA E SAI</h2>
+        </div>
+      </div>
+
+      <!-- A conta que ninguém faz: perdas evitadas vs. custo -->
+      <div class="lc-kpis anim anim-2">
+        <div class="lc-kpi lc-kpi--loss">
+          <span class="v">R$ 40M</span>
+          <span class="k">Perda anual esperada sem proteção (EAL)</span>
+        </div>
+        <div class="lc-kpi lc-kpi--loss">
+          <span class="v">R$ 18,86M</span>
+          <span class="k">TCO 3 anos (setup + recorrente)</span>
+        </div>
+        <div class="lc-kpi lc-kpi--gain">
+          <span class="v">R$ 101,1M</span>
+          <span class="k">Economia líquida acumulada · 3 anos</span>
+        </div>
+        <div class="lc-kpi lc-kpi--gain">
+          <span class="v">2,3 meses</span>
+          <span class="k">Payback · 1 incidente evitado = 9,9&times;</span>
+        </div>
+      </div>
+
+      <div class="lc-grid anim anim-3">
+        <!-- COL 1 -->
+        <div class="lc-col">
+          <div class="lc-block">
+            <div class="lc-num">01</div>
+            <div class="lc-name">Problema</div>
+            <ul class="lc-list">
+              <li>XR/VR/AR em inspeção e engenharia abre <b>5 vetores</b> — óculos sem MDM, credencial digitada no ar, vendor único</li>
+              <li>Proteger esse ambiente exige <span class="warn">MDM + TPM + PKCE + DLP simultâneos</span> — nenhum isolado resolve</li>
+              <li>Operador humano gerindo manualmente: <b>0,4 incidente/ano</b> a R$ 100M cada</li>
+            </ul>
+          </div>
+          <div class="lc-block">
+            <div class="lc-num">ALT</div>
+            <div class="lc-name">Alternativas existentes</div>
+            <ul class="lc-list">
+              <li>SOC tradicional: <span class="warn">R$ 50k/mês</span>, MTTD em dias</li>
+              <li>Mitigação reativa: R$ 500k por crise</li>
+              <li>Firewall clássico: não segmenta OT de IT</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COL 2 -->
+        <div class="lc-col">
+          <div class="lc-block">
+            <div class="lc-num">02</div>
+            <div class="lc-name">Solução</div>
+            <ul class="lc-list">
+              <li>DLP Proxy de <b>Camada 7</b> no caminho de toda saída — inclusive do headset</li>
+              <li>Zero Trust L7: SCADA bloqueado, engenharia em read-only com watermark</li>
+              <li>SOC Agêntico: <span class="hl">MTTD de 197 dias → 12 s</span>, resposta automática</li>
+            </ul>
+          </div>
+          <div class="lc-block">
+            <div class="lc-num">03</div>
+            <div class="lc-name">Métricas-chave</div>
+            <ul class="lc-list">
+              <li>EAL evitado: <b>R$ 40M/ano</b> (cenário base)</li>
+              <li>Payback: <b>2,3 meses</b> · NPV 3a: <b>R$ 80,55M</b></li>
+              <li>Custo evitado: <b>R$ 120M</b> em 3 anos</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COL 3 — coração -->
+        <div class="lc-col">
+          <div class="lc-block lc-block--hl lc-uvp">
+            <div class="lc-num">04</div>
+            <div class="lc-name">Proposta de Valor Única</div>
+            <div class="big">Transformar <em>R$ 40M/ano</em> de perda esperada em economia recorrente — sem tirar o operador do campo.</div>
+            <ul class="lc-list">
+              <li>Mãos livres preservadas: <b>zero digitação no ar</b>, biometria no próprio celular</li>
+              <li>Automação libera o inspetor para o <span class="hl">julgamento técnico</span>, não para apagar log</li>
+            </ul>
+            <div class="net">R$ 120M evitados − R$ 18,86M investidos = <b>R$ 101,1M</b></div>
+          </div>
+        </div>
+
+        <!-- COL 4 -->
+        <div class="lc-col">
+          <div class="lc-block">
+            <div class="lc-num">05</div>
+            <div class="lc-name">Vantagem injusta</div>
+            <ul class="lc-list">
+              <li>Compõe COTS que <b>ninguém entrega junto</b>: DLP L7 + Zero Trust XR + SOC LangGraph</li>
+              <li>Threat model Petrobras pronto: regex próprio, geofencing, know-your-asset</li>
+              <li>Arquitetura validada no caso Bacia de Campos</li>
+            </ul>
+          </div>
+          <div class="lc-block">
+            <div class="lc-num">06</div>
+            <div class="lc-name">Canais</div>
+            <ul class="lc-list">
+              <li>Venda diretatop-down: <b>CISO + CFO</b> do setor O&amp;G</li>
+              <li>Piloto 90 dias, 1 refinaria, risco zero</li>
+              <li>CIMATEC/SENAI como integradora</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COL 5 -->
+        <div class="lc-col">
+          <div class="lc-block">
+            <div class="lc-num">07</div>
+            <div class="lc-name">Segmentos de clientes</div>
+            <ul class="lc-list">
+              <li><b>Petrobras</b> e as 5 majors</li>
+              <li>Refinarias e bacias offshore</li>
+              <li>Operadores de VR/XR em inspeção, turnaround e engenharia</li>
+              <li>Fabricantes de equipamento com suporte em campo</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- FAIXA INFERIOR -->
+        <div class="lc-bottom">
+          <div class="lc-block lc-block--cost">
+            <div class="lc-cols">
+              <div class="lc-num">08</div>
+              <div class="lc-name">Estrutura de custos</div>
+            </div>
+            <ul class="lc-list">
+              <li>Setup Ano 0: <b>R$ 2,5M</b></li>
+              <li>Recorrente: <b>R$ 420k/mês</b></li>
+              <li>Zero CAPEX físico relevante — VPC, proxy e MDM</li>
+            </ul>
+          </div>
+          <div class="lc-block lc-block--rev">
+            <div class="lc-cols">
+              <div class="lc-num">09</div>
+              <div class="lc-name">Fluxos de receita</div>
+            </div>
+            <ul class="lc-list">
+              <li>Contrato anual operated + taxa de implantação</li>
+              <li>Expansão por refinaria e por classe de ativo</li>
+              <li>Serviço SOC 24/7 como linha recorrente</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="lc-foot anim anim-4">
+        <span class="ico">🛡️</span>
+        <span>No campo, o operador <span class="accent">não perde a mão livre</span> — ganha biometria em vez de senha. Na empresa, cada ano sem projeto custa <span class="accent">R$ 40M</span> de perda esperada.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============== SLIDE 13 — Custo de Oportunidade (20s) =============== -->
+  <section class="slide" data-slide="13">
     <div class="slide-content s10">
       <div class="s10-head">
         <div class="s10-eyebrow anim anim-1">VIABILIDADE ECON&Ocirc;MICA · CUSTO DE OPORTUNIDADE</div>
@@ -3195,7 +3578,7 @@ button { font-family: inherit; cursor: pointer; }
   </section>
 
   <!-- =============== SLIDE 13 — CTA + Viability (23s) =============== -->
-  <section class="slide" data-slide="13">
+  <section class="slide" data-slide="14">
     <div class="slide-content s11">
       <div class="s11-head">
         <div class="s11-eyebrow anim anim-1">CONVITE · PILOTO ENTERPRISE</div>
@@ -3274,7 +3657,7 @@ button { font-family: inherit; cursor: pointer; }
   </section>
 
   <!-- =============== SLIDE 14 — APÊNDICE · Evidência (de onde veio a arquitetura) =============== -->
-  <section class="slide" data-slide="14">
+  <section class="slide" data-slide="15">
     <div class="slide-content s12">
       <div class="s12-head">
         <div class="s12-eyebrow anim anim-1">APÊNDICE · EVIDÊNCIA · DE ONDE VEIO A ARQUITETURA</div>
@@ -3331,7 +3714,7 @@ button { font-family: inherit; cursor: pointer; }
   </section>
 
   <!-- =============== SLIDE 15 — APÊNDICE · Antes x Depois =============== -->
-  <section class="slide" data-slide="15">
+  <section class="slide" data-slide="16">
     <div class="slide-content s13">
       <div class="s13-head">
         <div class="s13-eyebrow anim anim-1">APÊNDICE · IMPACTO · ANTES × DEPOIS</div>
@@ -3390,7 +3773,7 @@ button { font-family: inherit; cursor: pointer; }
   </section>
 
   <!-- =============== SLIDE 16 — APÊNDICE · Mercado =============== -->
-  <section class="slide" data-slide="16">
+  <section class="slide" data-slide="17">
     <div class="slide-content s14">
       <div class="s14-head">
         <div class="s14-eyebrow anim anim-1">APÊNDICE · MERCADO · ATRATIVIDADE (CRITÉRIO D)</div>
@@ -3463,7 +3846,7 @@ button { font-family: inherit; cursor: pointer; }
   </section>
 
   <!-- =============== SLIDE 17 — ENCERRAMENTO · SOC Agêntico: Resposta Autônoma =============== -->
-  <section class="slide" data-slide="17">
+  <section class="slide" data-slide="18">
     <div class="slide-content soc-hero">
       <div class="soc-wrap anim anim-1">
         <div class="soc-frame">
@@ -3500,6 +3883,7 @@ button { font-family: inherit; cursor: pointer; }
     'soc/agentic-playground',
     'soc/deteccao-autonoma',
     'core/l7-proxy',
+    'economics/lean-canvas',
     'economics/opportunity-cost',
     'invite/pilot-90d',
     'appendix/evidence',
