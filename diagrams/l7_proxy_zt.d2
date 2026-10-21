@@ -1,0 +1,145 @@
+# CAMADA 7 — DLP PROXY · ZERO TRUST INTELLIGENCE (core feature)
+# Fonte: 07_Sintese_TCC.md §3.3 (CAMADA 3: DLP Proxy — Segmentação L7 OT/IT)
+#        + scripts/dlp_proxy/main.py
+#        + design/Agentic AI SOC Playground Architecture.md
+# Uso: slide 9 — SOC + DLP como CORE, não mais uma camada entre outras.
+#
+# Render: bash render.sh   (d2 l7_proxy_zt.d2 l7_proxy_zt.svg)
+
+direction: right
+
+vars: {
+  d2-config: {
+    theme-id: 0
+    pad: 16
+    sketch: false
+  }
+}
+
+classes: {
+  it: {
+    style: {
+      fill: "#131836"
+      stroke: "#3F4262"
+      stroke-width: 1
+      font-color: "#C7CAD9"
+      border-radius: 8
+    }
+  }
+  core: {
+    style: {
+      fill: "#0A0E27"
+      stroke: "#6366F1"
+      stroke-width: 3
+      font-color: "#6366F1"
+      bold: true
+      border-radius: 12
+    }
+  }
+  engine: {
+    style: {
+      fill: "#1F2447"
+      stroke: "#6366F1"
+      stroke-width: 2
+      font-color: "#F8F9FB"
+      border-radius: 8
+    }
+  }
+  zt: {
+    style: {
+      fill: "#1F2447"
+      stroke: "#00D4FF"
+      stroke-width: 2
+      font-color: "#00D4FF"
+      bold: true
+      border-radius: 8
+    }
+  }
+  soc: {
+    style: {
+      fill: "#0A0E27"
+      stroke: "#00FF41"
+      stroke-width: 3
+      font-color: "#00FF41"
+      bold: true
+      border-radius: 12
+    }
+  }
+  ot: {
+    style: {
+      fill: "#131836"
+      stroke: "#FF4757"
+      stroke-width: 2
+      font-color: "#FF4757"
+      border-radius: 8
+    }
+  }
+  flow: {
+    style: {
+      stroke: "#6366F1"
+      stroke-width: 2
+      font-color: "#7B7F95"
+    }
+  }
+  tel: {
+    style: {
+      stroke: "#00D4FF"
+      stroke-width: 2
+      stroke-dash: 4
+      font-color: "#7B7F95"
+    }
+  }
+}
+
+# ── Origem ────────────────────────────────────────────────
+it: "IT · CORPORATIVA\nXR · CAD · ERP" {
+  class: it
+}
+
+# ── CORE: Proxy de Camada 7 ───────────────────────────────
+l7: "CAMADA 7 · DLP PROXY · ZERO TRUST INTELLIGENCE" {
+  class: core
+
+  dlp: "DLP ENGINE\nCPF · P-XX · senha\nmascarados" {
+    class: engine
+  }
+
+  chan: "CHANNEL INSPECTOR\nchunked DoH\nbloqueado" {
+    class: engine
+  }
+
+  seg: "SEGMENTAÇÃO\nSCADA → bloqueado\nEngenharia → RO" {
+    class: engine
+  }
+
+  zt: "ZERO TRUST POLICY\nassumir breach\ntoken revogável" {
+    class: zt
+  }
+
+  dlp -> chan
+  chan -> seg
+  seg -> zt
+}
+
+# ── Destino ───────────────────────────────────────────────
+ot: "OT ISOLADA\nPLCs · SCADA · SIS\nIT direto = NUNCA" {
+  class: ot
+}
+
+# ── SOC ───────────────────────────────────────────────────
+soc: "SOC AGÊNTICO\nLangGraph + UEBA + MITRE\nMTTD < 12 s" {
+  class: soc
+}
+
+# ── Fluxo ─────────────────────────────────────────────────
+it -> l7 {
+  class: flow
+}
+
+l7 -> ot {
+  class: flow
+}
+
+l7 -> soc: "telemetria" {
+  class: tel
+}
