@@ -515,14 +515,17 @@ button { font-family: inherit; cursor: pointer; }
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--s-6);
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--text-tertiary);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   padding-top: var(--s-4);
+  padding-right: 150px;   /* afasta o .slide-counter fixo (canto inferior direito) */
   border-top: 1px solid var(--border);
 }
+.s1-footer span:last-child { text-align: right; }
 .s1-footer .mx { color: var(--brand-text); font-weight: 700; }
 
 /* ----- SLIDE 2 — HOOK caso (12s) ----- */
@@ -1908,12 +1911,12 @@ button { font-family: inherit; cursor: pointer; }
 .slide[data-slide="4"],
 .slide[data-slide="7"],
 .slide[data-slide="8"],
-.slide[data-slide="10"],
 .slide[data-slide="11"],
 .slide[data-slide="12"],
 .slide[data-slide="13"],
 .slide[data-slide="14"],
-.slide[data-slide="14"] {
+.slide[data-slide="15"],
+.slide[data-slide="16"] {
   background: var(--bg-iridescent-glow), var(--bg-primary);
 }
 .slide[data-slide="5"] { background: var(--bg-danger-glow), var(--bg-primary); }
@@ -2266,99 +2269,115 @@ button { font-family: inherit; cursor: pointer; }
 .s13-box--after .v { color: var(--brand); text-shadow: var(--brand-glow-soft); }
 .s13-arrow { text-align: center; font-size: 30px; color: var(--brand-text); line-height: 1; }
 
-/* ----- SLIDE 14 — Mercado ----- */
-.s14-grid {
+/* ----- SLIDE 14 — Infográfico de mercado ----- */
+.s14-fx {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 28px;
-  margin-bottom: var(--s-4);
+  grid-template-columns: 0.92fr 1.08fr;
+  gap: 26px;
   flex: 1;
-  align-content: center;
+  min-height: 0;
+  margin-bottom: var(--s-4);
 }
-.s14-panel {
-  padding: 22px 24px;
+.s14-card {
+  padding: 22px 26px;
   border-radius: 12px;
   background: var(--bg-glass);
   border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
+  justify-content: space-between;
 }
-.s14-panel-h {
+.s14-card-h {
   font-family: var(--font-mono);
   font-size: 13px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--brand-text);
 }
-.s14-funnel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.s14-fn {
-  padding: 18px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--bg-glass-strong);
-  text-align: center;
-}
-.s14-fn .v {
-  font-family: var(--font-display);
-  font-size: 38px;
-  font-weight: 900;
-  line-height: 1;
-  color: var(--brand);
-}
-.s14-fn .l {
+.s14-funnel { display: flex; flex-direction: column; gap: 18px; flex: 1; justify-content: space-evenly; }
+.s14-fbar { display: grid; grid-template-columns: 62px 1fr auto; align-items: center; gap: 16px; }
+.s14-fbar .tag {
   font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   color: var(--text-secondary);
-  margin-top: 8px;
 }
-.s14-fn .d { font-size: 13px; line-height: 1.3; color: var(--text-tertiary); margin-top: 8px; }
-.s14-fn--som { border-color: var(--border-gold); }
-.s14-fn--som .v { color: var(--brand-gold-bright); text-shadow: var(--brand-glow-gold); }
-.s14-rows { display: flex; flex-direction: column; gap: 10px; }
-.s14-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 13px 16px;
-  border-radius: 10px;
-  background: var(--bg-glass-strong);
-  border: 1px solid var(--border);
+.s14-fbar .track {
+  height: 54px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
 }
-.s14-row .nm { font-size: 17px; font-weight: 600; color: var(--text-secondary); }
-.s14-row .nm small {
-  display: block;
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--text-tertiary);
-  margin-top: 3px;
+.s14-fbar .fill {
+  height: 100%;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--brand) 0%, rgba(0, 255, 65, 0.30) 100%);
+  box-shadow: var(--brand-glow-soft);
 }
-.s14-row .vl {
-  font-family: var(--font-mono);
-  font-size: 19px;
-  font-weight: 800;
-  color: var(--brand-text);
+.s14-fbar .val {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 900;
+  color: var(--brand);
   white-space: nowrap;
 }
-.s14-row--win {
-  border-color: var(--border-brand-strong);
-  background: linear-gradient(90deg, var(--brand-faint-2) 0%, var(--bg-glass-strong) 65%);
+.s14-fbar--som .fill { background: linear-gradient(90deg, var(--brand-gold-bright) 0%, rgba(212, 160, 23, 0.30) 100%); box-shadow: var(--brand-glow-gold); }
+.s14-fbar--som .val { color: var(--brand-gold-bright); }
+.s14-fnote { font-size: 14px; line-height: 1.45; color: var(--text-tertiary); }
+.s14-fnote .accent { color: var(--brand-text); font-weight: 700; }
+.s14-bars { display: flex; flex-direction: column; gap: 20px; flex: 1; justify-content: space-evenly; }
+.s14-bar { display: grid; grid-template-columns: 232px 1fr 138px; align-items: center; gap: 18px; }
+.s14-bar .nm { font-size: 17px; font-weight: 600; color: var(--text-secondary); line-height: 1.25; }
+.s14-bar .nm small { display: block; font-size: 13px; font-weight: 400; color: var(--text-tertiary); margin-top: 4px; }
+.s14-bar .track {
+  height: 48px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
 }
-.s14-row--win .nm { color: var(--text-primary); }
-.s14-row--win .vl { color: var(--brand); font-size: 23px; }
+.s14-bar .fill {
+  height: 100%;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(134, 160, 133, 0.9) 0%, rgba(134, 160, 133, 0.32) 100%);
+}
+.s14-bar .vl {
+  font-family: var(--font-mono);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-align: right;
+  white-space: nowrap;
+}
+.s14-bar--win .nm { color: var(--text-primary); font-size: 19px; }
+.s14-bar--win .fill { background: linear-gradient(90deg, var(--brand) 0%, rgba(0, 255, 65, 0.30) 100%); box-shadow: var(--brand-glow-strong); }
+.s14-bar--win .vl { color: var(--brand); font-size: 23px; }
+.s14-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: var(--s-4); }
+.s14-chip {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-brand);
+  background: var(--brand-faint);
+}
+.s14-chip .k {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand-text);
+}
+.s14-chip .v { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-top: 6px; }
 
 /* Print (PDF) — slides de apêndice legíveis em fundo branco */
 @media print {
-  .s12-step, .s12-chip, .s13-box, .s14-panel, .s14-fn, .s14-row {
+  .s12-step, .s12-chip, .s13-box, .s14-card, .s14-chip {
     background: #fff !important;
     border: 1px solid #999 !important;
     box-shadow: none !important;
   }
-  .s12-title, .s13-title, .s14-title, .s12-step .n, .s13-box .v, .s14-fn .v,
-  .s14-row--win .vl, .s12-title .hi, .s13-title .hi, .s14-title .hi {
+  .s12-title, .s13-title, .s14-title, .s12-step .n, .s13-box .v, .s14-fbar .val,
+  .s14-bar--win .vl, .s12-title .hi, .s13-title .hi, .s14-title .hi {
     color: #000 !important;
     text-shadow: none !important;
   }
@@ -2548,6 +2567,20 @@ button { font-family: inherit; cursor: pointer; }
 }
 .soc-frame::before { top: 10px; left: 10px; border-right: 0; border-bottom: 0; }
 .soc-frame::after  { bottom: 10px; right: 10px; border-left: 0; border-top: 0; }
+/* Wash verde sobre a imagem: funde o azul do diagrama na paleta PetroShield
+   sem perder legibilidade do texto técnico. */
+.soc-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(ellipse at 50% 46%,
+    rgba(0, 255, 65, 0.11) 0%,
+    rgba(0, 255, 65, 0.03) 58%,
+    rgba(5, 11, 5, 0.30) 100%);
+}
 .soc-caption {
   position: absolute;
   left: 50%;
@@ -2577,7 +2610,7 @@ button { font-family: inherit; cursor: pointer; }
 </div>
 
 <!-- Slide counter (bottom-right) -->
-<div class="slide-counter"><span class="now" id="now">01</span> / 15</div>
+<div class="slide-counter"><span class="now" id="now">01</span> / 17</div>
 
 <!-- Navigation dots (bottom-center) -->
 <div class="nav-bar" id="navBar">
@@ -2629,7 +2662,7 @@ button { font-family: inherit; cursor: pointer; }
       </div>
 
       <div class="s1-footer anim anim-5">
-        <span>SLIDE 01 / 15 · <span class="mx">AxeGuard</span> — XR + Zero Trust para O&amp;G</span>
+        <span>SLIDE 01 / 17 · <span class="mx">AxeGuard</span> — XR + Zero Trust para O&amp;G</span>
         <span>OIL &amp; GAS · ENTERPRISE · 2026 · BASE: 19 CASOS REAIS</span>
       </div>
     </div>
@@ -3058,8 +3091,20 @@ button { font-family: inherit; cursor: pointer; }
     </div>
   </section>
 
-  <!-- =============== SLIDE 10 — CORE: Proxy de Camada 7 + SOC (18s) =============== -->
+  <!-- =============== SLIDE 10 — Detecção e Resposta Autônoma do SOC =============== -->
   <section class="slide" data-slide="10">
+    <div class="slide-content soc-hero">
+      <div class="soc-wrap anim anim-1">
+        <div class="soc-frame">
+          <img src="assets/soc_deteccao_resposta_autonoma.png" alt="Detecção e Resposta Autônoma do SOC — detecção contínua, correlação de sinais e resposta autônoma com contenção" />
+        </div>
+        <div class="soc-caption">Detecção e Resposta Autônoma · SOC Agêntico</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============== SLIDE 11 — CORE: Proxy de Camada 7 + SOC (18s) =============== -->
+  <section class="slide" data-slide="11">
     <div class="slide-content s9">
       <div class="s9-head">
         <div class="s9-eyebrow anim anim-1">CORE · CAMADA 7 · ZERO TRUST INTELLIGENCE</div>
@@ -3095,8 +3140,8 @@ button { font-family: inherit; cursor: pointer; }
     </div>
   </section>
 
-  <!-- =============== SLIDE 10 — Custo de Oportunidade (20s) =============== -->
-  <section class="slide" data-slide="11">
+  <!-- =============== SLIDE 12 — Custo de Oportunidade (20s) =============== -->
+  <section class="slide" data-slide="12">
     <div class="slide-content s10">
       <div class="s10-head">
         <div class="s10-eyebrow anim anim-1">VIABILIDADE ECON&Ocirc;MICA · CUSTO DE OPORTUNIDADE</div>
@@ -3149,8 +3194,8 @@ button { font-family: inherit; cursor: pointer; }
     </div>
   </section>
 
-  <!-- =============== SLIDE 11 — CTA + Viability (23s) =============== -->
-  <section class="slide" data-slide="12">
+  <!-- =============== SLIDE 13 — CTA + Viability (23s) =============== -->
+  <section class="slide" data-slide="13">
     <div class="slide-content s11">
       <div class="s11-head">
         <div class="s11-eyebrow anim anim-1">CONVITE · PILOTO ENTERPRISE</div>
@@ -3228,8 +3273,8 @@ button { font-family: inherit; cursor: pointer; }
     </div>
   </section>
 
-  <!-- =============== SLIDE 12 — APÊNDICE · Evidência (de onde veio a arquitetura) =============== -->
-  <section class="slide" data-slide="13">
+  <!-- =============== SLIDE 14 — APÊNDICE · Evidência (de onde veio a arquitetura) =============== -->
+  <section class="slide" data-slide="14">
     <div class="slide-content s12">
       <div class="s12-head">
         <div class="s12-eyebrow anim anim-1">APÊNDICE · EVIDÊNCIA · DE ONDE VEIO A ARQUITETURA</div>
@@ -3285,8 +3330,8 @@ button { font-family: inherit; cursor: pointer; }
     </div>
   </section>
 
-  <!-- =============== SLIDE 13 — APÊNDICE · Antes x Depois =============== -->
-  <section class="slide" data-slide="14">
+  <!-- =============== SLIDE 15 — APÊNDICE · Antes x Depois =============== -->
+  <section class="slide" data-slide="15">
     <div class="slide-content s13">
       <div class="s13-head">
         <div class="s13-eyebrow anim anim-1">APÊNDICE · IMPACTO · ANTES × DEPOIS</div>
@@ -3344,74 +3389,87 @@ button { font-family: inherit; cursor: pointer; }
     </div>
   </section>
 
-  <!-- =============== SLIDE 14 — APÊNDICE · Mercado =============== -->
-  <section class="slide" data-slide="15">
+  <!-- =============== SLIDE 16 — APÊNDICE · Mercado =============== -->
+  <section class="slide" data-slide="16">
     <div class="slide-content s14">
       <div class="s14-head">
         <div class="s14-eyebrow anim anim-1">APÊNDICE · MERCADO · ATRATIVIDADE (CRITÉRIO D)</div>
         <h2 class="s14-title anim anim-2">US$ 32 BI DE MERCADO. <span class="hi">NINGUÉM CONCORRENTE COBRE O NOSSO ESPAÇO.</span></h2>
       </div>
 
-      <div class="s14-grid">
-        <div class="s14-panel anim anim-3">
-          <div class="s14-panel-h">Mercado endereçável · CAGR 11,3% a.a.</div>
+      <div class="s14-fx">
+        <div class="s14-card anim anim-3">
+          <div class="s14-card-h">Mercado endereçável · CAGR 11,3% a.a.</div>
           <div class="s14-funnel">
-            <div class="s14-fn">
-              <div class="v">US$ 32bi</div>
-              <div class="l">TAM</div>
-              <div class="d">Cibersegurança industrial global</div>
+            <div class="s14-fbar">
+              <span class="tag">TAM</span>
+              <div class="track"><div class="fill" style="width: 100%;"></div></div>
+              <span class="val">US$ 32bi</span>
             </div>
-            <div class="s14-fn">
-              <div class="v">US$ 8bi</div>
-              <div class="l">SAM</div>
-              <div class="d">O&amp;G + infraestrutura crítica</div>
+            <div class="s14-fbar">
+              <span class="tag">SAM</span>
+              <div class="track"><div class="fill" style="width: 25%;"></div></div>
+              <span class="val">US$ 8bi</span>
             </div>
-            <div class="s14-fn s14-fn--som">
-              <div class="v">US$ 800M</div>
-              <div class="l">SOM</div>
-              <div class="d">5 majors + Petrobras · 2 primeiros anos</div>
-            </div>
-          </div>
-
-          <div class="s14-panel-h">Âncora enterprise</div>
-          <div class="s14-rows">
-            <div class="s14-row">
-              <div class="nm">Petrobras<small>Maior empresa de energia da América Latina · cliente-âncora</small></div>
-              <div class="vl">R$ 600bi+</div>
-            </div>
-            <div class="s14-row">
-              <div class="nm">5 majors alinhados<small>Petrobras · Shell · BP · TotalEnergies · Equinor</small></div>
-              <div class="vl">SOM US$ 800M</div>
+            <div class="s14-fbar s14-fbar--som">
+              <span class="tag">SOM</span>
+              <div class="track"><div class="fill" style="width: 11%;"></div></div>
+              <span class="val">US$ 800M</span>
             </div>
           </div>
+          <div class="s14-fnote">Cibersegurança industrial global (TAM) · O&amp;G + infraestrutura crítica (SAM) · 5 majors + Petrobras nos 2 primeiros anos (SOM).</div>
+          <div class="s14-fnote">Barras em proporção real — o SOM é <span class="accent">2,5% do TAM</span>. Não precisamos de mercado grande: precisamos de um recorte que ninguém atende.</div>
         </div>
 
-        <div class="s14-panel anim anim-4">
-          <div class="s14-panel-h">Custo anual da defesa enterprise</div>
-          <div class="s14-rows">
-            <div class="s14-row">
-              <div class="nm">Palo Alto + CrowdStrike + Splunk<small>Não cobre XR · não cobre DLP Petrobras</small></div>
-              <div class="vl">~R$ 30M/ano</div>
-            </div>
-            <div class="s14-row">
-              <div class="nm">Microsoft Defender + SIEM<small>Não cobre DLP Petrobras-specific</small></div>
-              <div class="vl">~R$ 15M/ano</div>
-            </div>
-            <div class="s14-row">
+        <div class="s14-card anim anim-4">
+          <div class="s14-card-h">Quanto custa defender a refinaria por ano</div>
+          <div class="s14-bars">
+            <div class="s14-bar">
               <div class="nm">Projeto custom<small>18 meses · risco de execução</small></div>
+              <div class="track"><div class="fill" style="width: 100%;"></div></div>
               <div class="vl">~R$ 50M+</div>
             </div>
-            <div class="s14-row s14-row--win">
-              <div class="nm">AXEGUARD<small>Cobre XR + DLP Petrobras-specific · setup em 90 dias</small></div>
+            <div class="s14-bar">
+              <div class="nm">Palo Alto + CrowdStrike + Splunk<small>Não cobre XR · não cobre DLP Petrobras</small></div>
+              <div class="track"><div class="fill" style="width: 60%;"></div></div>
+              <div class="vl">~R$ 30M/ano</div>
+            </div>
+            <div class="s14-bar">
+              <div class="nm">Microsoft Defender + SIEM<small>Não cobre DLP Petrobras-specific</small></div>
+              <div class="track"><div class="fill" style="width: 30%;"></div></div>
+              <div class="vl">~R$ 15M/ano</div>
+            </div>
+            <div class="s14-bar s14-bar--win">
+              <div class="nm">AXEGUARD<small>Cobre XR + DLP Petrobras-specific</small></div>
+              <div class="track"><div class="fill" style="width: 18%;"></div></div>
               <div class="vl">R$ 5–10M/ano</div>
             </div>
           </div>
         </div>
       </div>
 
+      <div class="s14-strip anim anim-5">
+        <div class="s14-chip"><div class="k">Âncora</div><div class="v">Petrobras · R$ 600bi+</div></div>
+        <div class="s14-chip"><div class="k">Clientes alinhados</div><div class="v">Shell · BP · Total · Equinor</div></div>
+        <div class="s14-chip"><div class="k">Cobertura</div><div class="v">XR + DLP Petrobras-specific</div></div>
+        <div class="s14-chip"><div class="k">Time-to-market</div><div class="v">Setup em 90 dias</div></div>
+      </div>
+
       <div class="s14-foot anim anim-6">
         <span>3–6× mais barato que a soma de produtos enterprise que entregam <span class="accent">menos</span> cobertura.</span>
         <span class="src">Fonte: session_traction_ask · 19_Viabilidade_Economica_Modelo</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============== SLIDE 17 — ENCERRAMENTO · SOC Agêntico: Resposta Autônoma =============== -->
+  <section class="slide" data-slide="17">
+    <div class="slide-content soc-hero">
+      <div class="soc-wrap anim anim-1">
+        <div class="soc-frame">
+          <img src="assets/soc_agentico_resposta_autonoma.png" alt="SOC Agêntico — Resposta Autônoma: da detecção à contenção automática" />
+        </div>
+        <div class="soc-caption">SOC Agêntico · Resposta Autônoma</div>
       </div>
     </div>
   </section>
@@ -3440,12 +3498,14 @@ button { font-family: inherit; cursor: pointer; }
     'mitigation/matrix',
     'proposal/zero-stack',
     'soc/agentic-playground',
+    'soc/deteccao-autonoma',
     'core/l7-proxy',
     'economics/opportunity-cost',
     'invite/pilot-90d',
     'appendix/evidence',
     'appendix/before-after',
-    'appendix/market'
+    'appendix/market',
+    'soc/agentic-resposta'
   ];
   slides.forEach((s, i) => {
     const c = document.createElement('div');
