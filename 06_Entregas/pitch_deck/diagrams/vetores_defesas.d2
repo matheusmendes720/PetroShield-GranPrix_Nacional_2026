@@ -1,0 +1,118 @@
+# 5 Vetores de Ataque → 4 Camadas + SOC — AxeGuard
+# Fonte: pitch_deck/04_mitigation_per_pattern.md + 07_solution_4_layers.md
+# Uso: slide 7 (mapeamento ataque → defesa). Mostra que NÃO é 1 solução por vetor:
+#      a defesa é por CAPACIDADE, e a composição é o produto.
+#
+# Render: d2 vetores_defesas.d2 vetores_defesas.svg
+
+vars: {
+  d2-config: {
+    theme-id: 0
+    pad: 24
+    sketch: false
+  }
+}
+
+classes: {
+  vector: {
+    style: {
+      fill: "#1F2447"
+      stroke: "#7B7F95"
+      stroke-width: 1
+      font-color: "#C7CAD9"
+      border-radius: 6
+    }
+  }
+  layer: {
+    style: {
+      fill: "#131836"
+      stroke: "#6366F1"
+      stroke-width: 2
+      font-color: "#F8F9FB"
+      border-radius: 8
+    }
+  }
+  soc: {
+    style: {
+      fill: "#0A0E27"
+      stroke: "#6366F1"
+      stroke-width: 3
+      font-color: "#6366F1"
+      bold: true
+      border-radius: 8
+    }
+  }
+  hit: {
+    style: {
+      stroke: "#6366F1"
+      stroke-width: 2
+      font-color: "#7B7F95"
+    }
+  }
+}
+
+vectors: "5 VETORES DE ATAQUE" {
+  style.font-color: "#7B7F95"
+  style.bold: true
+
+  v1: "01 Supply Chain\nfornecedor comprometido"
+  v2: "02 Endpoint XR\nóculos sem MDM"
+  v3: "03 OAuth furado\ncredencial compartilhada"
+  v4: "04 Proxy exfiltração\nDLP cego a DoH"
+  v5: "05 Paralisia operacional\nrefinaria offline"
+}
+
+vectors.v1 -> l4
+vectors.v2 -> l4
+vectors.v3 -> l3
+vectors.v4 -> l2
+vectors.v5 -> soc
+
+l4: "L4 · MDM Governança\nArborXR + Hexnode\nwipe remoto · TPM 2.0" {
+  class: layer
+}
+
+l3: "L3 · Auth\nOAuth Device Flow + PKCE\nbiometria + TPM binding" {
+  class: layer
+}
+
+l2: "L2 · DLP Middleware\nFastAPI + SpaCy + regex Petrobras\nchannel inspector DoH" {
+  class: layer
+}
+
+l1: "L1 · LLM Enclave\nAzure OpenAI · VNet privada\nno-train · soberania" {
+  class: layer
+}
+
+soc: "L5 · SOC AGÊNTICO\nLangGraph + UEBA + MITRE ATT&CK\nMTTD < 12 s · auto-response · antifrágil" {
+  class: soc
+}
+
+l1 -> soc: "sinais + telemetria" {
+  class: hit
+}
+
+l2 -> soc: "alertas + نمatches" {
+  class: hit
+}
+
+l3 -> soc: "eventos de auth" {
+  class: hit
+}
+
+l4 -> soc: "postura do device" {
+  class: hit
+}
+
+gap: "O GAP NÃO É TÉCNICA — É COMPOSIÇÃO\nCada camada sozinha é COTS de mercado.\nA composição é o que entregamos." {
+  style: {
+    fill: "#131836"
+    stroke: "#6366F1"
+    stroke-width: 2
+    font-color: "#F8F9FB"
+    bold: true
+    border-radius: 8
+  }
+}
+
+soc -> gap

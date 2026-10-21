@@ -1,0 +1,126 @@
+# TCO 3 anos vs Custo Evitado — AxeGuard enterprise (1 refinaria-âncora)
+# Modelo: 06_Entregas/19_Viabilidade_Economica_Modelo.md
+# Uso: slide 10 (bloco VIABILIDADE) —_waterfall_.
+#
+# Render: d2 tco_waterfall.d2 tco_waterfall.svg
+
+vars: {
+  d2-config: {
+    theme-id: 0
+    pad: 24
+    sketch: false
+  }
+}
+
+classes: {
+  cost: {
+    style: {
+      fill: "#131836"
+      stroke: "#7B7F95"
+      stroke-width: 1
+      font-color: "#C7CAD9"
+      border-radius: 6
+    }
+  }
+  benefit: {
+    style: {
+      fill: "#0A0E27"
+      stroke: "#6366F1"
+      stroke-width: 3
+      font-color: "#6366F1"
+      bold: true
+      border-radius: 8
+    }
+  }
+  kpi: {
+    style: {
+      fill: "#1F2447"
+      stroke: "#6366F1"
+      stroke-width: 2
+      font-color: "#F8F9FB"
+      border-radius: 8
+    }
+  }
+  dim: {
+    style: {
+      fill: "#1F2447"
+      stroke: "#3F4262"
+      stroke-width: 1
+      font-color: "#7B7F95"
+      border-radius: 6
+    }
+  }
+  arrow: {
+    style: {
+      stroke: "#6366F1"
+      stroke-width: 2
+      font-color: "#7B7F95"
+    }
+  }
+}
+
+setup: "SETUP — Ano 0\nR\$ 2,5M\n(descoberta + 4 camadas + SOC + enablement)" {
+  class: cost
+}
+
+r1: "RECORRENTE — Ano 1\nR\$ 5,04M\n(SOC operated + threat intel + suporte + COTS)" {
+  class: cost
+}
+
+r2: "RECORRENTE — Ano 2\nR\$ 5,44M\n(+8% inflação / licença)" {
+  class: cost
+}
+
+r3: "RECORRENTE — Ano 3\nR\$ 5,89M\n(+8% inflação / licença)" {
+  class: cost
+}
+
+tco: "TCO 3 ANOS\nR\$ 18,87M\ncusto total de propriedade" {
+  class: benefit
+}
+
+setup -> r1
+r1 -> r2
+r2 -> r3
+r3 -> tco: "soma" {
+  class: arrow
+}
+
+evit: "CUSTO EVITADO — 3 anos\nR\$ 120M\nEAL base · F 0,4/ano × R\$ 100M" {
+  class: benefit
+}
+
+tco -> evit: "benefício líquido\nR\$ 101,1M" {
+  style.stroke: "#6366F1"
+  style.stroke-width: 3
+  style.font-color: "#6366F1"
+  style.bold: true
+}
+
+# ── KPIs ──────────────────────────────────────────────────
+k1: "ROI 3 anos\n(base)\n6,4×" {
+  class: kpi
+}
+
+k2: "Payback\n2,3 meses\n(conservador: 6 meses)" {
+  class: kpi
+}
+
+k3: "NPV 3 anos\n@ 12% a.a.\nR\$ 80,5M" {
+  class: kpi
+}
+
+k4: "1 incidente evitado\npaga\n9,9× o investimento" {
+  class: kpi
+}
+
+tco -> k1
+tco -> k2
+tco -> k3
+evit -> k4
+
+scen: "CENÁRIOS (EAL / 3 anos)\nconservador  2,4×\nbase          6,4×\notimista     15,9×" {
+  class: dim
+}
+
+evit -> scen
